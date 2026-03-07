@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSE-4783 Cryptography | Study Guide</title>
+    <style>
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2b6cb0;
+            --background-color: #f7fafc;
+            --card-bg: #ffffff;
+            --text-color: #2d3748;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Grid Layout for the Syllabus Topics */
+        .syllabus-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* Styling for the clickable topic cards */
+        .topic-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--secondary-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .topic-card h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 1.4rem;
+        }
+
+        .topic-card p {
+            color: #718096;
+            font-size: 0.95rem;
+            flex-grow: 1;
+        }
+
+        .read-more {
+            margin-top: 1rem;
+            color: var(--secondary-color);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>CSE-4783 Cryptography</h1>
+        <p>Comprehensive Study Guide & Course Notes</p>
+    </header>
+
+    <div class="container">
+        <h2>Course Syllabus & Topics</h2>
+        <p>Select a topic below to view the study materials, algorithms, and mathematical proofs.</p>
+
+        <div class="syllabus-grid">
+            
+            <!-- Topic 1 -->
+            <a href="topics/1-introduction-and-math.html" class="topic-card">
+                <h2>1. Math Background & Classical Ciphers</h2>
+                <p>Modular arithmetic, GCD, Euclidean Algorithm, shift ciphers, substitution ciphers, and Vigenère.</p>
+                <div class="read-more">View Study Guide →</div>
+            </a>
+
+            <!-- Topic 2 -->
+            <a href="topics/2-symmetric-ciphers.html" class="topic-card">
+                <h2>2. Symmetric Key Cryptography</h2>
+                <p>Block ciphers, DES, AES (Advanced Encryption Standard), and Feistel networks.</p>
+                <div class="read-more">View Study Guide →</div>
+            </a>
+
+            <!-- Topic 3 -->
+            <a href="topics/3-modes-of-operation.html" class="topic-card">
+                <h2>3. Modes of Operation & Stream Ciphers</h2>
+                <p>ECB, CBC, CFB, OFB, CTR modes. Introduction to stream ciphers and RC4.</p>
+                <div class="read-more">View Study Guide →</div>
+            </a>
+
+            <!-- Topic 4 -->
+            <a href="topics/4-public-key-crypto.html" class="topic-card">
+                <h2>4. Public Key (Asymmetric) Crypto</h2>
+                <p>Number theory fundamentals, prime numbers, Euler's Totient function, and the RSA Algorithm.</p>
+                <div class="read-more">View Study Guide →</div>
+            </a>
+
+            <!-- Topic 5 -->
+            <a href="topics/5-discrete-log-ecc.html" class="topic-card">
+                <h2>5. Key Exchange & Elliptic Curves</h2>
+                <p>Diffie-Hellman Key Exchange, Discrete Logarithm Problem, and Elliptic Curve Cryptography (ECC).</p>
+                <div class="read-more">View Study Guide →</div>
+            </a>
+
+            <!-- Topic 6 -->
+            <a href="topics/6-hash-functions-macs.html" class="topic-card">
+                <h2>6. Hash Functions & MACs</h2>
+                <p>Cryptographic hash properties, SHA-256, MD5, and Message Authentication Codes (HMAC).</p>
+                <div class="read-more">View Study Guide →</div>
+            </a>
+
+            <!-- Topic 7 -->
+            <a href="topics/7-digital-signatures.html" class="topic-card">
+                <h2>7. Digital Signatures & Certificates</h2>
+                <p>RSA Signatures, Digital Signature Algorithm (DSA), PKI, and X.509 Certificates.</p>
+                <div class="read-more">View Study Guide →</div>
+            </a>
+
+            <!-- Topic 8 -->
+            <a href="topics/8-network-security.html" class="topic-card">
+                <h2>8. Applied Network Security</h2>
+                <p>SSL/TLS protocols, IPsec, PGP, and real-world cryptographic vulnerabilities.</p>
+                <div class="read-more">View Study Guide →</div>
+            </a>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>Created for CSE-4783 Cryptography. Hosted on GitHub Pages.</p>
+    </footer>
+
+</body>
+</html>
