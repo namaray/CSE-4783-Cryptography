@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2. Transposition & Pad Ciphers | CSE 4783</title>
+    <!-- MathJax for rendering math formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --background-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 4px solid var(--secondary-color);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #bdc3c7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-link:hover {
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .formula-box {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            overflow-x: auto;
+        }
+
+        ul {
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .code-block {
+            font-family: monospace;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Module 2: Transposition & Pad Ciphers</h1>
+        <a href="../index.html" class="nav-link">← Back to Syllabus</a>
+    </header>
+
+    <div class="container">
+        
+        <!-- Section 1: Transposition Ciphers -->
+        <div class="card">
+            <h2>1. Transposition Ciphers</h2>
+            <p>A transposition cipher reorders (transposes) the symbols in the plaintext, thereby creating the ciphertext. It does <em>not</em> change the actual characters, only their positions.</p>
+            
+            <h3>Keyless Transposition Ciphers</h3>
+            <p>Traditional and easy to use. The plaintext characters are written into a table either column-wise or row-wise. Ciphertext is formed by reading the characters in the opposite manner (e.g., write horizontally, read vertically).</p>
+            <ul>
+                <li><strong>Staff Cipher:</strong> Earliest version used by the Spartans in the 5th century BC.</li>
+                <li>The secrecy relies entirely on the <strong>width of the table</strong>.</li>
+                <li>If the message doesn't perfectly fit the table, the empty spaces are padded out with dummy characters (like x, y, z).</li>
+            </ul>
+
+            <h3>Keyed Transposition Ciphers</h3>
+            <p>Divides the plaintext into blocks of predefined size. A key is used to permute the characters within each block.</p>
+            <p><strong>Example:</strong> Enter data horizontally in a table. Read down columns, but sort the columns based on the numbered key order.</p>
+            <div class="code-block">Key: 3 1 4 2
+M Y C A
+T H A S
+F L E A
+S x y z
+
+Read column 1 (key order 1): YHLx
+Read column 2 (key order 2): ASAz
+Read column 3 (key order 3): MTFS
+Read column 4 (key order 4): CAEy</div>
+            <p><em>Note:</em> A transposition cipher is actually a special case of a <strong>Hill cipher</strong> because permutations can be performed using matrix multiplication. It does nothing to hide the statistical distribution of letters.</p>
+        </div>
+
+        <!-- Section 2: Stream Ciphers and One-Time Pad -->
+        <div class="card">
+            <h2>2. Stream Ciphers & One Time Pad</h2>
+            
+            <h3>One Time Pad (Vernam Cipher)</h3>
+            <p>First implemented at AT&T using the Vernam machine. It uses a <strong>random set of non-repeating characters</strong> as a key. The key must be used only once.</p>
+            <ol>
+                <li>Assign alphabets in plaintext to numbers (A=0, B=1 ... Z=25).</li>
+                <li>Assign randomly chosen pad characters to numbers.</li>
+                <li>Add the plaintext numbers to the pad numbers.</li>
+                <li>Apply Mod 26 operation to the sum.</li>
+                <li>Translate back to alphabets to get the ciphertext.</li>
+            </ol>
+
+            <h3>Binary One Time Pad</h3>
+            <p>In modern computing, the plaintext \( M \) and pad \( P \) are viewed as random binary strings of length \( n \). Encryption and decryption are performed using the bitwise <strong>XOR</strong> operator (\( \oplus \)).</p>
+            <div class="formula-box">
+                Encryption: \( C = M \oplus P \)<br>
+                Decryption: \( M = C \oplus P \)
+            </div>
+            <p><strong>Security:</strong> The binary one-time pad is absolutely unbreakable. Each bit of ciphertext is equally likely to be a 0 or 1, independent of the plaintext.</p>
+        </div>
+
+        <!-- Section 3: Modern Ciphers -->
+        <div class="card">
+            <h2>3. Modern Block Ciphers</h2>
+            <p>Earlier ciphers were character-oriented. Modern ciphers are <strong>bit-oriented</strong>. This is because modern data includes graphics, audio, and video, which must be transformed into streams of bits. Replacing characters with 8-bit or 16-bit blocks increases security exponentially.</p>
+
+            <h3>Block Ciphers vs Stream Ciphers</h3>
+            <ul>
+                <li><strong>Block Cipher:</strong> Encrypts an \( m \)-bit block of plaintext at a time to produce an \( m \)-bit block of ciphertext using a fixed key.</li>
+                <li><strong>Partitioning:</strong> Plaintext of length \( n \) is partitioned into a sequence of blocks.</li>
+                <li><strong>Padding:</strong> Required when plaintext length is not a multiple of the block size. A common method is <strong>PKCS5</strong>.</li>
+            </ul>
+            <p><em>Padding Example:</em> If block size is 16 bytes, and plaintext is "Roberto" (7 bytes). It needs 9 bytes of padding. Padded text: <code>Roberto999999999</code> (where 9 denotes the length of the padding bytes).</p>
+        </div>
+
+        <!-- Section 4: Components of Modern Block Ciphers -->
+        <div class="card">
+            <h2>4. Components of Modern Block Ciphers</h2>
+            
+            <h3>S-Box (Substitution Box)</h3>
+            <p>Takes \( n \) bits of input and produces \( m \) bits of output. Substitution of several bits is performed in parallel. S-boxes can be keyed or keyless (keyless are common in modern ciphers).</p>
+
+            <h3>P-Box (Permutation / Diffusion Box)</h3>
+            <p>Performs transposition at the bit-level. Several bits are permuted simultaneously.</p>
+            <ul>
+                <li><strong>Straight P-box:</strong> \( n \) inputs to \( n \) outputs. There are \( n! \) possible mappings.</li>
+                <li><strong>Compression P-box:</strong> \( n \) inputs to \( m \) outputs (where \( m < n \)). Some inputs are blocked and dropped.</li>
+                <li><strong>Expansion P-box:</strong> \( n \) inputs to \( m \) outputs (where \( m > n \)). A single input is mapped to more than one output.</li>
+            </ul>
+
+            <h3>Circular Shift</h3>
+            <p>Bits are shifted either left or right to conceal bit patterns. In a circular left shift by \( n \) positions, the \( n \) leftmost bits are removed and placed at the rightmost positions.</p>
+        </div>
+
+        <!-- Section 5: Shannon's Theory -->
+        <div class="card">
+            <h2>5. Shannon's Theory: Diffusion and Confusion</h2>
+            <p>Proposed by Claude Shannon to thwart cryptanalysis based on statistical analysis.</p>
+            <ul>
+                <li><strong>Diffusion:</strong> Hides the relationship between <em>ciphertext and plaintext</em>. Frustrates statistical analysis. A change in a single plaintext symbol causes changes in several (or all) ciphertext symbols. (Achieved via P-Boxes).</li>
+                <li><strong>Confusion:</strong> Hides the relationship between <em>ciphertext and the key</em>. Frustrates attempts to discover the key. A change in a single bit of the key causes changes in several ciphertext symbols. (Achieved via S-Boxes).</li>
+            </ul>
+        </div>
+
+    </div>
+
+</body>
+</html>
