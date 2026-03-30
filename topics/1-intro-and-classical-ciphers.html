@@ -111,12 +111,12 @@
             margin-bottom: 0.5rem;
         }
 
-        /* Styles for the new Cryptanalysis Attack Grid */
+        /* Styles for the Cryptanalysis Attack Grid */
         .attack-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
 
         .attack-card {
@@ -125,6 +125,8 @@
             border-radius: 6px;
             padding: 1.5rem;
             border-top: 4px solid var(--primary-color);
+            display: flex;
+            flex-direction: column;
         }
 
         .attack-card h4 {
@@ -133,6 +135,18 @@
             font-size: 1.1rem;
             border-bottom: 1px solid #eee;
             padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .attack-img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #eaeaea;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            background-color: white;
+            padding: 5px;
+            box-sizing: border-box;
         }
 
         .highlight-box {
@@ -225,6 +239,7 @@
                 <!-- Ciphertext-only -->
                 <div class="attack-card">
                     <h4>1. Ciphertext-Only Attack</h4>
+                    <img src="images/cyphertextonly.png" alt="Ciphertext-only attack diagram" class="attack-img">
                     <div class="highlight-box">Attacker only has: Ciphertext</div>
                     <p>The cryptanalyst only intercepts the transmission channel to gather the <strong>Ciphertext</strong>. They must analyze this alone to find the Plaintext or Key. They have no access to the encryption or decryption processes.</p>
                 </div>
@@ -232,6 +247,7 @@
                 <!-- Known-plaintext -->
                 <div class="attack-card">
                     <h4>2. Known-Plaintext Attack</h4>
+                    <img src="images/knownplaintext.png" alt="Known-plaintext attack diagram" class="attack-img">
                     <div class="highlight-box">Attacker has: Ciphertext + Previous P/C Pairs</div>
                     <p>The cryptanalyst intercepts the current <strong>Ciphertext</strong>, but they <em>also</em> have access to a <strong>previous pair of plaintext-ciphertext</strong>. They use the known relationship from the previous pair to break the current ciphertext.</p>
                 </div>
@@ -239,6 +255,7 @@
                 <!-- Chosen-plaintext -->
                 <div class="attack-card">
                     <h4>3. Chosen-Plaintext Attack</h4>
+                    <img src="images/chosenplaintext.png" alt="Chosen-plaintext attack diagram" class="attack-img">
                     <div class="highlight-box">Attacker can access: Encryption Process (A)</div>
                     <p>The cryptanalyst has temporary access to the sender's encryption mechanism. They can feed a <strong>chosen plaintext</strong> into the encryption algorithm and observe the resulting ciphertext, creating a custom pair to analyze the key.</p>
                 </div>
@@ -246,12 +263,13 @@
                 <!-- Chosen-ciphertext -->
                 <div class="attack-card">
                     <h4>4. Chosen-Ciphertext Attack</h4>
+                    <img src="images/chosenciphertext.png" alt="Chosen-ciphertext attack diagram" class="attack-img">
                     <div class="highlight-box">Attacker can access: Decryption Process (B)</div>
                     <p>The cryptanalyst has temporary access to the receiver's decryption mechanism. They can feed a <strong>chosen ciphertext</strong> into the decryption algorithm and observe the resulting plaintext, creating a custom pair to reverse-engineer the key.</p>
                 </div>
             </div>
 
-            <h3>Key Management Functions:</h3>
+            <h3 style="margin-top: 2rem;">Key Management Functions:</h3>
             <p><strong>Generation:</strong> Must be random and long enough to avoid prediction.<br>
                <strong>Distribution:</strong> Moving the key securely from generation point to usage point.<br>
                <strong>Installation:</strong> Securely storing it on the device.<br>
