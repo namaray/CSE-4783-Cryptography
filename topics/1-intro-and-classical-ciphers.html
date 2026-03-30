@@ -265,6 +265,80 @@
             </div>
         </div>
 
+
+
+                <!-- 3. Categorization -->
+        <div class="card">
+            <h2>3. Categorization of Symmetric Ciphers</h2>
+            <p>A Symmetric Key Cipher uses the same secret key for both encryption and decryption. These are divided into:</p>
+            <ul>
+                <li><strong>Substitution Cipher:</strong> Replaces a symbol (single letter or group) with another symbol. The identity changes, but the position remains the same.</li>
+                <li><strong>Transposition Cipher:</strong> No substitution occurs. Instead, the <em>location</em> of characters is reordered. Identity remains, but position changes.</li>
+            </ul>
+        </div>
+
+        <!-- 4. Monoalphabetic -->
+        <div class="card">
+            <h2>4. Monoalphabetic Ciphers</h2>
+            <p>A substitution cipher where a symbol in plaintext has a <strong>1-to-1 relationship</strong> with a symbol in ciphertext. A letter is always replaced by the same letter regardless of position.</p>
+            
+            <h3>Additive / Shift / Caesar Cipher</h3>
+            <p>The simplest method. Each letter is shifted a fixed number of positions (Key \(K\)) down the alphabet. Caesar used a shift of 3.</p>
+            <div class="formula-box">
+                Encryption: \( C = (P + K) \pmod{26} \)<br>
+                Decryption: \( P = (C - K) \pmod{26} \)
+            </div>
+
+            <h3>Multiplicative Cipher</h3>
+            <p>The plaintext value is multiplied by Key \(K\). For this to be reversible, \(K\) must be <strong>coprime to 26</strong> (i.e., \(gcd(K, 26) = 1\)).</p>
+            <div class="formula-box">
+                Encryption: \( C = (P \times K) \pmod{26} \)<br>
+                Decryption: \( P = (C \times K^{-1}) \pmod{26} \)
+            </div>
+
+            <h3>Affine Cipher</h3>
+            <p>A combination of the two above. It applies multiplicative first, followed by an additive shift. Uses key pair: \((K_1, K_2)\).</p>
+            <div class="formula-box">
+                Encryption: \( C = (P \times K_1 + K_2) \pmod{26} \)
+            </div>
+        </div>
+
+        <!-- 5. Polyalphabetic -->
+        <div class="card">
+            <h2>5. Polyalphabetic Ciphers</h2>
+            <p>A single character in plaintext can have a <strong>1-to-many relationship</strong> with ciphertext. The replacement changes based on position.</p>
+            
+            <h3>Autokey Cipher</h3>
+            <p>The key is automatically generated. Usually, the first subkey is pre-shared, and subsequent subkeys are taken from the plaintext characters themselves.</p>
+        
+            <h3>Playfair Cipher</h3>
+            <p>Encrypts <strong>pairs of letters (digraphs)</strong> using a \(5 \times 5\) matrix created from a keyword. 
+               <br><em>Rule:</em> If same letters in a pair, insert 'X' (e.g., HELLO → HE LX LO).</p>
+        
+            <h3>Vigenere Cipher</h3>
+            <p>Uses a keyword repeated over the plaintext. Each letter of the keyword determines the shift for that specific position.</p>
+            <div class="formula-box">\( C_i = (P_i + K_i) \pmod{26} \)</div>
+        
+            <h3>Hill Cipher</h3>
+            <p>A mathematical cipher using <strong>linear algebra</strong>. It divides plaintext into equal blocks and uses an \(n \times n\) square matrix key to transform blocks.</p>
+            <div class="formula-box">\( C = K \times P \pmod{26} \)</div>
+        </div>
+
+        <!-- 6. Key Management -->
+        <div class="card">
+            <h2>6. Key Management Functions</h2>
+            <ul>
+                <li><strong>Generation:</strong> Selection of a key that must be random and long enough to avoid prediction.</li>
+                <li><strong>Distribution:</strong> Moving the key securely from generation point to usage point.</li>
+                <li><strong>Installation:</strong> Securely storing it on the device.</li>
+                <li><strong>Storage:</strong> Maintaining confidentiality of stored keys.</li>
+                <li><strong>Change:</strong> Keys must be changed periodically to prevent interception.</li>
+                <li><strong>Control:</strong> Implementing restraining influence over key usage.</li>
+            </ul>
+        </div>
+
+    </div>
+
         <!-- Section 4: Categorization & Substitution -->
         <div class="card">
             <h2>4. Symmetric Key Ciphers</h2>
