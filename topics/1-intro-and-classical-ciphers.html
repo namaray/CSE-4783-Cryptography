@@ -111,12 +111,45 @@
             margin-bottom: 0.5rem;
         }
 
-        .matrix {
-            font-family: monospace;
-            background: #f1f1f1;
-            padding: 10px;
-            border-radius: 5px;
-            display: inline-block;
+        /* Styles for the new Cryptanalysis Attack Grid */
+        .attack-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .attack-card {
+            background-color: #fdfdfd;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.5rem;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .attack-card h4 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        .highlight-box {
+            background-color: #fde8e8;
+            padding: 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #c0392b;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .attack-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -185,14 +218,38 @@
 
         <!-- Section 3: Cryptanalysis & Key Management -->
         <div class="card">
-            <h2>3. Cryptanalysis & Key Management</h2>
-            <h3>Types of Cryptanalysis Attacks:</h3>
-            <ul>
-                <li><strong>Ciphertext-only attack:</strong> Attacker only has the ciphertext.</li>
-                <li><strong>Known-plaintext attack:</strong> Attacker has previous pairs of (plaintext, ciphertext).</li>
-                <li><strong>Chosen-plaintext attack:</strong> Attacker can choose plaintexts and get their ciphertexts.</li>
-                <li><strong>Chosen-ciphertext attack:</strong> Attacker can choose ciphertexts and get their decrypted plaintexts.</li>
-            </ul>
+            <h2>3. Cryptanalysis Attacks & Key Management</h2>
+            <p>Cryptanalysis is the art of breaking encrypted codes to obtain the plaintext or key. There are four primary models of attack based on what the attacker (the "Analyze" phase) has access to:</p>
+            
+            <div class="attack-grid">
+                <!-- Ciphertext-only -->
+                <div class="attack-card">
+                    <h4>1. Ciphertext-Only Attack</h4>
+                    <div class="highlight-box">Attacker only has: Ciphertext</div>
+                    <p>The cryptanalyst only intercepts the transmission channel to gather the <strong>Ciphertext</strong>. They must analyze this alone to find the Plaintext or Key. They have no access to the encryption or decryption processes.</p>
+                </div>
+
+                <!-- Known-plaintext -->
+                <div class="attack-card">
+                    <h4>2. Known-Plaintext Attack</h4>
+                    <div class="highlight-box">Attacker has: Ciphertext + Previous P/C Pairs</div>
+                    <p>The cryptanalyst intercepts the current <strong>Ciphertext</strong>, but they <em>also</em> have access to a <strong>previous pair of plaintext-ciphertext</strong>. They use the known relationship from the previous pair to break the current ciphertext.</p>
+                </div>
+
+                <!-- Chosen-plaintext -->
+                <div class="attack-card">
+                    <h4>3. Chosen-Plaintext Attack</h4>
+                    <div class="highlight-box">Attacker can access: Encryption Process (A)</div>
+                    <p>The cryptanalyst has temporary access to the sender's encryption mechanism. They can feed a <strong>chosen plaintext</strong> into the encryption algorithm and observe the resulting ciphertext, creating a custom pair to analyze the key.</p>
+                </div>
+
+                <!-- Chosen-ciphertext -->
+                <div class="attack-card">
+                    <h4>4. Chosen-Ciphertext Attack</h4>
+                    <div class="highlight-box">Attacker can access: Decryption Process (B)</div>
+                    <p>The cryptanalyst has temporary access to the receiver's decryption mechanism. They can feed a <strong>chosen ciphertext</strong> into the decryption algorithm and observe the resulting plaintext, creating a custom pair to reverse-engineer the key.</p>
+                </div>
+            </div>
 
             <h3>Key Management Functions:</h3>
             <p><strong>Generation:</strong> Must be random and long enough to avoid prediction.<br>
