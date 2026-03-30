@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1. Intro & Classical Ciphers | CSE 4783</title>
+    <!-- MathJax for rendering math formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --background-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 4px solid var(--secondary-color);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #bdc3c7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-link:hover {
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .formula-box {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            overflow-x: auto;
+        }
+
+        ul {
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .matrix {
+            font-family: monospace;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Module 1: Introduction & Classical Ciphers</h1>
+        <a href="../index.html" class="nav-link">← Back to Syllabus</a>
+    </header>
+
+    <div class="container">
+        
+        <!-- Section 1: Terminology -->
+        <div class="card">
+            <h2>1. Core Terminology & Concepts</h2>
+            <p><strong>Cryptography</strong> (from <em>kryptos</em>: secret writing) is the process of altering messages to hide their meaning from adversaries.</p>
+            <ul>
+                <li><strong>Plaintext (P/M):</strong> The original, unencrypted message.</li>
+                <li><strong>Ciphertext (C):</strong> The encrypted message received by the receiver.</li>
+                <li><strong>Encryption (E):</strong> Transforming plaintext into ciphertext. \( C = E(M) \)</li>
+                <li><strong>Decryption (D):</strong> Transforming ciphertext back to plaintext. \( M = D(C) \)</li>
+                <li><strong>Key (K):</strong> A number/set of numbers the cipher operates on.</li>
+            </ul>
+            <h3>The 7 Elements of a Cryptosystem:</h3>
+            <ol>
+                <li>Set of possible plaintexts</li>
+                <li>Set of possible ciphertexts</li>
+                <li>Set of encryption keys</li>
+                <li>Set of decryption keys</li>
+                <li>Correspondence between encryption and decryption keys</li>
+                <li>The encryption algorithm</li>
+                <li>The decryption algorithm</li>
+            </ol>
+        </div>
+
+        <!-- Section 2: Symmetric vs Asymmetric -->
+        <div class="card">
+            <h2>2. Symmetric vs Public-Key Cryptography</h2>
+            <table>
+                <tr>
+                    <th>Symmetric Key Cryptography</th>
+                    <th>Public Key (Asymmetric) Cryptography</th>
+                </tr>
+                <tr>
+                    <td>Uses a <strong>single key</strong> for both encryption and decryption.</td>
+                    <td>Uses <strong>two different keys</strong> (Public for encryption, Private for decryption).</td>
+                </tr>
+                <tr>
+                    <td>Requires \( \frac{n(n-1)}{2} \) keys for <em>n</em> users communicating in a network.</td>
+                    <td>Key distribution is not a major problem.</td>
+                </tr>
+                <tr>
+                    <td>Very fast processing.</td>
+                    <td>Slower compared to symmetric-key.</td>
+                </tr>
+                <tr>
+                    <td>Used only for confidentiality.</td>
+                    <td>Used for confidentiality, integrity, and digital signatures.</td>
+                </tr>
+                <tr>
+                    <td>Examples: DES, AES.</td>
+                    <td>Example: RSA.</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Section 3: Cryptanalysis & Key Management -->
+        <div class="card">
+            <h2>3. Cryptanalysis & Key Management</h2>
+            <h3>Types of Cryptanalysis Attacks:</h3>
+            <ul>
+                <li><strong>Ciphertext-only attack:</strong> Attacker only has the ciphertext.</li>
+                <li><strong>Known-plaintext attack:</strong> Attacker has previous pairs of (plaintext, ciphertext).</li>
+                <li><strong>Chosen-plaintext attack:</strong> Attacker can choose plaintexts and get their ciphertexts.</li>
+                <li><strong>Chosen-ciphertext attack:</strong> Attacker can choose ciphertexts and get their decrypted plaintexts.</li>
+            </ul>
+
+            <h3>Key Management Functions:</h3>
+            <p><strong>Generation:</strong> Must be random and long enough to avoid prediction.<br>
+               <strong>Distribution:</strong> Moving the key securely from generation point to usage point.<br>
+               <strong>Installation:</strong> Securely storing it on the device.<br>
+               <strong>Storage:</strong> Maintaining confidentiality of stored keys.<br>
+               <strong>Change:</strong> Keys must be changed periodically to prevent interception.<br>
+               <strong>Control:</strong> Implementing restraining influence over key usage.</p>
+        </div>
+
+        <!-- Section 4: Substitution Ciphers -->
+        <div class="card">
+            <h2>4. Substitution Ciphers (Math & Formulas)</h2>
+            <p>Substitution ciphers replace symbols in the plaintext with other symbols. They are divided into <strong>Monoalphabetic</strong> (1-to-1 relationship) and <strong>Polyalphabetic</strong> (1-to-many relationship).</p>
+
+            <h3>Additive / Shift / Caesar Cipher</h3>
+            <div class="formula-box">
+                Encryption: \( C = (P + K) \pmod{26} \)<br>
+                Decryption: \( P = (C - K) \pmod{26} \)
+            </div>
+            <p><em>Example:</em> Key = 20. Plaintext 't' (value 19). \( C = (19 + 20) \pmod{26} = 39 \pmod{26} = 13 \) ('n').</p>
+
+            <h3>Multiplicative Cipher</h3>
+            <div class="formula-box">
+                Encryption: \( C = (P \times K) \pmod{26} \)<br>
+                Decryption: \( P = (C \times K^{-1}) \pmod{26} \)
+            </div>
+            <p><em>Example:</em> Key = 15. The modular inverse of 15 modulo 26 is 7 (because \( 15 \times 7 = 105 \equiv 1 \pmod{26} \)). To decrypt, multiply the ciphertext by 7.</p>
+
+            <h3>Affine Cipher</h3>
+            <p>Combines Additive and Multiplicative ciphers using a pair of keys \( (K_1, K_2) \).</p>
+            <div class="formula-box">
+                Encryption: \( C_1 = (P \times K_1) \pmod{26} \), then \( C = (C_1 + K_2) \pmod{26} \)<br>
+                Decryption: \( P_1 = (C - K_2) \pmod{26} \), then \( P = (P_1 \times K_1^{-1}) \pmod{26} \)
+            </div>
+
+            <h3>Vigenère Cipher (Polyalphabetic)</h3>
+            <p>The key is repeated until it matches the length of the plaintext.</p>
+            <div class="formula-box">
+                \( C_i = (P_i + K_i) \pmod{26} \)
+            </div>
+        </div>
+
+        <!-- Section 5: Playfair Cipher -->
+        <div class="card">
+            <h2>5. Playfair Cipher</h2>
+            <p>Uses a 5x5 matrix based on a keyword (I and J are combined). Plaintext is split into pairs (digraphs). If a pair has the same letters, insert 'X'.</p>
+            <h3>Encryption Rules:</h3>
+            <ol>
+                <li><strong>Same Row:</strong> Replace each letter with the letter to its <strong>right</strong> (wrap around).</li>
+                <li><strong>Same Column:</strong> Replace each letter with the letter <strong>below</strong> it (wrap around).</li>
+                <li><strong>Rectangle Rule:</strong> Replace each letter with the letter in its <strong>same row, but the other column</strong> of the rectangle.</li>
+            </ol>
+            <p><em>Note:</em> For decryption, reverse the rules (Move Left for rows, Move Up for columns).</p>
+        </div>
+
+        <!-- Section 6: Hill Cipher -->
+        <div class="card">
+            <h2>6. Hill Cipher (Matrix Math)</h2>
+            <p>The Hill cipher encrypts blocks of text using matrix multiplication. The key \( K \) is an \( n \times n \) matrix.</p>
+            <div class="formula-box">
+                Encryption: \( C = K \times P \pmod{26} \)<br>
+                Decryption: \( P = K^{-1} \times C \pmod{26} \)
+            </div>
+            
+            <h3>Steps to find the Inverse Key Matrix \( K^{-1} \) for Decryption:</h3>
+            <ol>
+                <li><strong>Compute the Determinant:</strong> \( det(K) \)</li>
+                <li><strong>Find the Inverse Determinant:</strong> Find \( x \) such that \( det(K) \times x \equiv 1 \pmod{26} \)</li>
+                <li><strong>Compute the Cofactor Matrix:</strong> Calculate the cofactor for every position in the matrix.</li>
+                <li><strong>Compute the Adjugate Matrix:</strong> Transpose the Cofactor matrix.</li>
+                <li><strong>Multiply:</strong> Multiply the Adjugate matrix by the Inverse Determinant modulo 26.</li>
+            </ol>
+            <p><em>Example from slides:</em> Key = "GYBNQKURP" translates to a 3x3 matrix. Determinant calculated is 441. \( 441 \equiv 25 \pmod{26} \). The modular inverse of 25 mod 26 is 25. The adjugate matrix is multiplied by 25 mod 26 to get \( K^{-1} \).</p>
+        </div>
+
+    </div>
+
+</body>
+</html>
