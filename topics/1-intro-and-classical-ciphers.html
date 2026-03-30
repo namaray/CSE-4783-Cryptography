@@ -103,7 +103,7 @@
             overflow-x: auto;
         }
 
-        ul, ol {
+        ul {
             padding-left: 1.5rem;
         }
 
@@ -111,6 +111,7 @@
             margin-bottom: 0.5rem;
         }
 
+        /* Styles for the Cryptanalysis Attack Grid */
         .attack-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -178,13 +179,13 @@
         <!-- Section 1: Terminology -->
         <div class="card">
             <h2>1. Core Terminology & Concepts</h2>
-            <p><strong>Cryptography</strong> (from <em>kryptos</em>: secret writing) is the process of altering messages to hide their meaning from adversaries. It is essential for communicating over untrusted mediums like the Internet.</p>
+            <p><strong>Cryptography</strong> (from <em>kryptos</em>: secret writing) is the process of altering messages to hide their meaning from adversaries.</p>
             <ul>
-                <li><strong>Plaintext (P/M):</strong> The original unencrypted message.</li>
+                <li><strong>Plaintext (P/M):</strong> The original, unencrypted message.</li>
                 <li><strong>Ciphertext (C):</strong> The encrypted message received by the receiver.</li>
-                <li><strong>Encryption (E):</strong> The process of producing ciphertext. \( C = E(M) \)</li>
-                <li><strong>Decryption (D):</strong> The reverse process; converting ciphertext back to plaintext. \( M = D(C) \)</li>
-                <li><strong>Key (K):</strong> A number or set of numbers on which the cipher operates. The longer the key, the harder it is for an attacker.</li>
+                <li><strong>Encryption (E):</strong> Transforming plaintext into ciphertext. \( C = E(M) \)</li>
+                <li><strong>Decryption (D):</strong> Transforming ciphertext back to plaintext. \( M = D(C) \)</li>
+                <li><strong>Key (K):</strong> A number/set of numbers the cipher operates on.</li>
             </ul>
             <h3>The 7 Elements of a Cryptosystem:</h3>
             <ol>
@@ -193,8 +194,8 @@
                 <li>Set of encryption keys</li>
                 <li>Set of decryption keys</li>
                 <li>Correspondence between encryption and decryption keys</li>
-                <li>The encryption algorithm to use</li>
-                <li>The decryption algorithm to use</li>
+                <li>The encryption algorithm</li>
+                <li>The decryption algorithm</li>
             </ol>
         </div>
 
@@ -211,214 +212,174 @@
                     <td>Uses <strong>two different keys</strong> (Public for encryption, Private for decryption).</td>
                 </tr>
                 <tr>
-                    <td>Key distribution is a big problem. Requires \( \frac{n(n-1)}{2} \) keys for <em>n</em> users.</td>
-                    <td>Key distribution is not a problem.</td>
+                    <td>Requires \( \frac{n(n-1)}{2} \) keys for <em>n</em> users communicating in a network.</td>
+                    <td>Key distribution is not a major problem.</td>
                 </tr>
                 <tr>
-                    <td>Very fast processing. Ciphertext size usually ≤ original text.</td>
-                    <td>Slower processing. Ciphertext size usually > original text.</td>
+                    <td>Very fast processing.</td>
+                    <td>Slower compared to symmetric-key.</td>
                 </tr>
                 <tr>
                     <td>Used only for confidentiality.</td>
-                    <td>Used for confidentiality, integrity, and non-repudiation (Digital Signatures).</td>
+                    <td>Used for confidentiality, integrity, and digital signatures.</td>
                 </tr>
                 <tr>
-                    <td>Algorithms: DES, AES.</td>
-                    <td>Algorithm: RSA.</td>
+                    <td>Examples: DES, AES.</td>
+                    <td>Example: RSA.</td>
                 </tr>
             </table>
         </div>
 
-        <!-- Section 3: Cryptanalysis -->
+        <!-- Section 3: Cryptanalysis & Key Management -->
         <div class="card">
-            <h2>3. Cryptanalysis Attacks</h2>
-            <p>Cryptanalysis is the art of breaking encrypted codes to obtain the plaintext or key. There are four primary models based on the attacker's access:</p>
+            <h2>3. Cryptanalysis Attacks & Key Management</h2>
+            <p>Cryptanalysis is the art of breaking encrypted codes to obtain the plaintext or key. There are four primary models of attack based on what the attacker (the "Analyze" phase) has access to:</p>
             
             <div class="attack-grid">
+                <!-- Ciphertext-only -->
                 <div class="attack-card">
-                    <h4>1. Cyphertext-Only Attack</h4>
-                    <img src="images/cyphertextonly.png" alt="Cyphertext-only diagram" class="attack-img">
-                    <div class="highlight-box">Only Intercepts Ciphertext</div>
-                    <p>The attacker analyze the intercepted ciphertext alone to find the plaintext or key.</p>
+                    <h4>1. Ciphertext-Only Attack</h4>
+                    <img src="images/cyphertextonly.png" alt="Ciphertext-only attack diagram" class="attack-img">
+                    <div class="highlight-box">Attacker only has: Ciphertext</div>
+                    <p>The cryptanalyst only intercepts the transmission channel to gather the <strong>Ciphertext</strong>. They must analyze this alone to find the Plaintext or Key. They have no access to the encryption or decryption processes.</p>
                 </div>
 
+                <!-- Known-plaintext -->
                 <div class="attack-card">
                     <h4>2. Known-Plaintext Attack</h4>
-                    <img src="images/knownplaintext.png" alt="Known-plaintext diagram" class="attack-img">
-                    <div class="highlight-box">Has Previous P/C Pairs</div>
-                    <p>Attacker uses knowledge of previous plaintext-ciphertext pairs to help break the current message.</p>
+                    <img src="images/knownplaintext.png" alt="Known-plaintext attack diagram" class="attack-img">
+                    <div class="highlight-box">Attacker has: Ciphertext + Previous P/C Pairs</div>
+                    <p>The cryptanalyst intercepts the current <strong>Ciphertext</strong>, but they <em>also</em> have access to a <strong>previous pair of plaintext-ciphertext</strong>. They use the known relationship from the previous pair to break the current ciphertext.</p>
                 </div>
 
+                <!-- Chosen-plaintext -->
                 <div class="attack-card">
                     <h4>3. Chosen-Plaintext Attack</h4>
-                    <img src="images/chosenplaintext.png" alt="Chosen-plaintext diagram" class="attack-img">
-                    <div class="highlight-box">Access to Encryption Process</div>
-                    <p>Attacker chooses specific plaintexts to be encrypted and analyzes the resulting ciphertexts.</p>
+                    <img src="images/chosenplaintext.png" alt="Chosen-plaintext attack diagram" class="attack-img">
+                    <div class="highlight-box">Attacker can access: Encryption Process (A)</div>
+                    <p>The cryptanalyst has temporary access to the sender's encryption mechanism. They can feed a <strong>chosen plaintext</strong> into the encryption algorithm and observe the resulting ciphertext, creating a custom pair to analyze the key.</p>
                 </div>
 
+                <!-- Chosen-ciphertext -->
                 <div class="attack-card">
                     <h4>4. Chosen-Ciphertext Attack</h4>
-                    <img src="images/chosenciphertext.png" alt="Chosen-ciphertext diagram" class="attack-img">
-                    <div class="highlight-box">Access to Decryption Process</div>
-                    <p>Attacker chooses specific ciphertexts to be decrypted and analyzes the resulting plaintexts.</p>
+                    <img src="images/chosenciphertext.png" alt="Chosen-ciphertext attack diagram" class="attack-img">
+                    <div class="highlight-box">Attacker can access: Decryption Process (B)</div>
+                    <p>The cryptanalyst has temporary access to the receiver's decryption mechanism. They can feed a <strong>chosen ciphertext</strong> into the decryption algorithm and observe the resulting plaintext, creating a custom pair to reverse-engineer the key.</p>
                 </div>
             </div>
+
+            <h3 style="margin-top: 2rem;">Key Management Functions:</h3>
+            <p><strong>Generation:</strong> Must be random and long enough to avoid prediction.<br>
+               <strong>Distribution:</strong> Moving the key securely from generation point to usage point.<br>
+               <strong>Installation:</strong> Securely storing it on the device.<br>
+               <strong>Storage:</strong> Maintaining confidentiality of stored keys.<br>
+               <strong>Change:</strong> Keys must be changed periodically to prevent interception.<br>
+               <strong>Control:</strong> Implementing restraining influence over key usage.</p>
         </div>
-
-
-
-                <!-- 3. Categorization -->
         <div class="card">
-            <h2>3. Categorization of Symmetric Ciphers</h2>
-            <p>A Symmetric Key Cipher uses the same secret key for both encryption and decryption. These are divided into:</p>
+            <h2>1. Categorization of Symmetric Ciphers</h2>
+            <p>A <strong>Symmetric Key Cipher</strong> uses the same secret key for both encryption and decryption. These are broadly divided into two strategies:</p>
             <ul>
-                <li><strong>Substitution Cipher:</strong> Replaces a symbol (single letter or group) with another symbol. The identity changes, but the position remains the same.</li>
-                <li><strong>Transposition Cipher:</strong> No substitution occurs. Instead, the <em>location</em> of characters is reordered. Identity remains, but position changes.</li>
+                <li><strong>Substitution Cipher:</strong> Replaces a symbol (a single letter or group of letters) in the plaintext with another symbol. The identity of the character changes, but its position remains the same.</li>
+                <li><strong>Transposition Cipher:</strong> There is no substitution of characters. Instead, the <em>location</em> of characters is changed (reordered). The identity remains, but the position changes.</li>
             </ul>
         </div>
 
-        <!-- 4. Monoalphabetic -->
         <div class="card">
-            <h2>4. Monoalphabetic Ciphers</h2>
-            <p>A substitution cipher where a symbol in plaintext has a <strong>1-to-1 relationship</strong> with a symbol in ciphertext. A letter is always replaced by the same letter regardless of position.</p>
+            <h2>2. Monoalphabetic Ciphers</h2>
+            <p>A <strong>Monoalphabetic Cipher</strong> is a substitution cipher where a symbol in the plaintext has a 1-to-1 relationship with a symbol in the ciphertext. A letter is always replaced by the same letter regardless of its position.</p>
             
             <h3>Additive / Shift / Caesar Cipher</h3>
-            <p>The simplest method. Each letter is shifted a fixed number of positions (Key \(K\)) down the alphabet. Caesar used a shift of 3.</p>
+            <p>The simplest substitution method. Each letter in the plaintext is shifted a fixed number of positions (the key \(K\)) down the alphabet. Julius Caesar famously used a shift of 3.</p>
+        
+            <h3>Multiplicative Cipher</h3>
+            <p>The plaintext symbol value is multiplied by a key \(K \pmod{26}\). For this to be reversible (decipherable), the key \(K\) must be <em>coprime</em> to 26 (i.e., \(gcd(K, 26) = 1\)).</p>
+        
+            <h3>Affine Cipher</h3>
+            <p>A combination of the two above. It applies a multiplicative cipher first, followed by an additive cipher. It uses a pair of keys: \( (K_1, K_2) \).</p>
+        </div>
+
+        <div class="card">
+            <h2>3. Polyalphabetic Ciphers</h2>
+            <p>In a <strong>Polyalphabetic Cipher</strong>, a single character in the plaintext can have a 1-to-many relationship with characters in the ciphertext. The same character can be replaced by different characters depending on its position in the message.</p>
+            
+            <h3>Autokey Cipher</h3>
+            <p>A cipher where the key is automatically generated. Typically, the first subkey is a pre-shared number, and the subsequent subkeys are taken from the plaintext characters themselves.</p>
+        
+            <h3>Playfair Cipher</h3>
+            <p>The first cipher to encrypt <strong>pairs of letters</strong> (digraphs) instead of single letters. It uses a \(5 \times 5\) matrix of letters created using a keyword to determine how pairs are shifted or swapped.</p>
+        
+            <h3>Vigenere Cipher</h3>
+            <p>Uses a keyword to create a group of subkeys. The keyword is repeated over the length of the plaintext, and each letter of the plaintext is shifted by the value of the corresponding keyword letter.</p>
+        
+            <h3>Hill Cipher</h3>
+            <p>A mathematical cipher invented by Lester Hill. It divides plaintext into equal-size blocks and uses an \(n \times n\) <strong>square matrix</strong> as the key to perform linear algebra transformations on the blocks.</p>
+        </div>        
+        <!-- Section 4: Substitution Ciphers -->
+        <div class="card">
+            <h2>4. Substitution Ciphers (Math & Formulas)</h2>
+            <p>Substitution ciphers replace symbols in the plaintext with other symbols. They are divided into <strong>Monoalphabetic</strong> (1-to-1 relationship) and <strong>Polyalphabetic</strong> (1-to-many relationship).</p>
+
+            <h3>Additive / Shift / Caesar Cipher</h3>
             <div class="formula-box">
                 Encryption: \( C = (P + K) \pmod{26} \)<br>
                 Decryption: \( P = (C - K) \pmod{26} \)
             </div>
+            <p><em>Example:</em> Key = 20. Plaintext 't' (value 19). \( C = (19 + 20) \pmod{26} = 39 \pmod{26} = 13 \) ('n').</p>
 
             <h3>Multiplicative Cipher</h3>
-            <p>The plaintext value is multiplied by Key \(K\). For this to be reversible, \(K\) must be <strong>coprime to 26</strong> (i.e., \(gcd(K, 26) = 1\)).</p>
             <div class="formula-box">
                 Encryption: \( C = (P \times K) \pmod{26} \)<br>
                 Decryption: \( P = (C \times K^{-1}) \pmod{26} \)
             </div>
+            <p><em>Example:</em> Key = 15. The modular inverse of 15 modulo 26 is 7 (because \( 15 \times 7 = 105 \equiv 1 \pmod{26} \)). To decrypt, multiply the ciphertext by 7.</p>
 
             <h3>Affine Cipher</h3>
-            <p>A combination of the two above. It applies multiplicative first, followed by an additive shift. Uses key pair: \((K_1, K_2)\).</p>
+            <p>Combines Additive and Multiplicative ciphers using a pair of keys \( (K_1, K_2) \).</p>
             <div class="formula-box">
-                Encryption: \( C = (P \times K_1 + K_2) \pmod{26} \)
+                Encryption: \( C_1 = (P \times K_1) \pmod{26} \), then \( C = (C_1 + K_2) \pmod{26} \)<br>
+                Decryption: \( P_1 = (C - K_2) \pmod{26} \), then \( P = (P_1 \times K_1^{-1}) \pmod{26} \)
+            </div>
+
+            <h3>Vigenère Cipher (Polyalphabetic)</h3>
+            <p>The key is repeated until it matches the length of the plaintext.</p>
+            <div class="formula-box">
+                \( C_i = (P_i + K_i) \pmod{26} \)
             </div>
         </div>
 
-        <!-- 5. Polyalphabetic -->
+        <!-- Section 5: Playfair Cipher -->
         <div class="card">
-            <h2>5. Polyalphabetic Ciphers</h2>
-            <p>A single character in plaintext can have a <strong>1-to-many relationship</strong> with ciphertext. The replacement changes based on position.</p>
-            
-            <h3>Autokey Cipher</h3>
-            <p>The key is automatically generated. Usually, the first subkey is pre-shared, and subsequent subkeys are taken from the plaintext characters themselves.</p>
-        
-            <h3>Playfair Cipher</h3>
-            <p>Encrypts <strong>pairs of letters (digraphs)</strong> using a \(5 \times 5\) matrix created from a keyword. 
-               <br><em>Rule:</em> If same letters in a pair, insert 'X' (e.g., HELLO → HE LX LO).</p>
-        
-            <h3>Vigenere Cipher</h3>
-            <p>Uses a keyword repeated over the plaintext. Each letter of the keyword determines the shift for that specific position.</p>
-            <div class="formula-box">\( C_i = (P_i + K_i) \pmod{26} \)</div>
-        
-            <h3>Hill Cipher</h3>
-            <p>A mathematical cipher using <strong>linear algebra</strong>. It divides plaintext into equal blocks and uses an \(n \times n\) square matrix key to transform blocks.</p>
-            <div class="formula-box">\( C = K \times P \pmod{26} \)</div>
-        </div>
-
-        <!-- 6. Key Management -->
-        <div class="card">
-            <h2>6. Key Management Functions</h2>
-            <ul>
-                <li><strong>Generation:</strong> Selection of a key that must be random and long enough to avoid prediction.</li>
-                <li><strong>Distribution:</strong> Moving the key securely from generation point to usage point.</li>
-                <li><strong>Installation:</strong> Securely storing it on the device.</li>
-                <li><strong>Storage:</strong> Maintaining confidentiality of stored keys.</li>
-                <li><strong>Change:</strong> Keys must be changed periodically to prevent interception.</li>
-                <li><strong>Control:</strong> Implementing restraining influence over key usage.</li>
-            </ul>
-        </div>
-
-    </div>
-
-        <!-- Section 4: Categorization & Substitution -->
-        <div class="card">
-            <h2>4. Symmetric Key Ciphers</h2>
-            <p>Broadly divided into <strong>Substitution</strong> (changing character identity) and <strong>Transposition</strong> (changing character position).</p>
-
-            <h3>Monoalphabetic Ciphers (1-to-1 relationship)</h3>
-            
-            <p><strong>Additive / Shift / Caesar Cipher:</strong> Shifts every letter by a fixed key \(K\).</p>
-            <div class="formula-box">
-                \( C = (P + K) \pmod{26} \) | \( P = (C - K) \pmod{26} \)
-            </div>
-
-            <p><strong>Multiplicative Cipher:</strong> Multiplies value by key \(K\). Requires \(gcd(K, 26) = 1\).</p>
-            <div class="formula-box">
-                \( C = (P \times K) \pmod{26} \) | \( P = (C \times K^{-1}) \pmod{26} \)
-            </div>
-
-            <p><strong>Affine Cipher:</strong> A combination of both. Uses key pair \((K_1, K_2)\).</p>
-            <div class="formula-box">
-                \( C = (P \times K_1 + K_2) \pmod{26} \) | \( P = (C - K_2) \times K_1^{-1} \pmod{26} \)
-            </div>
-
-            <h3>Polyalphabetic Ciphers (1-to-many relationship)</h3>
-            <ul>
-                <li><strong>Autokey Cipher:</strong> The key stream is generated from a seed followed by the plaintext itself.</li>
-                <li><strong>Vigenère Cipher:</strong> Uses a keyword that repeats. Each letter of the keyword determines the shift for that position.</li>
-                <li><strong>Hill Cipher:</strong> A mathematical cipher treating blocks of letters as vectors and multiplying by an \(n \times n\) matrix.</li>
-            </ul>
-        </div>
-
-        <!-- Section 5: Playfair & Hill Details -->
-        <div class="card">
-            <h2>5. Advanced Classical Logic</h2>
-            
-            <h3>Playfair Preparation Rules</h3>
-            <p>Before encrypting digraphs (pairs), process the plaintext:</p>
-            <ul>
-                <li>If a pair has the same letter, insert an <strong>'X'</strong> (e.g., HELLO → HE LX LO).</li>
-                <li>If one letter remains at the end, add an <strong>'X'</strong>.</li>
-            </ul>
-
-            <h3>Hill Cipher Matrix Math</h3>
-            <div class="formula-box">
-                \( C = K \cdot P \pmod{26} \) | \( P = K^{-1} \cdot C \pmod{26} \)
-            </div>
+            <h2>5. Playfair Cipher</h2>
+            <p>Uses a 5x5 matrix based on a keyword (I and J are combined). Plaintext is split into pairs (digraphs). If a pair has the same letters, insert 'X'.</p>
+            <h3>Encryption Rules:</h3>
             <ol>
-                <li>Compute Determinant \(det(K)\).</li>
-                <li>Find Modular Inverse of determinant s.t. \(det(K) \cdot x \equiv 1 \pmod{26}\).</li>
-                <li>Find Cofactor Matrix and transpose it to get Adjugate Matrix.</li>
-                <li>Multiply Adjugate Matrix by inverse determinant \(\pmod{26}\) to get \(K^{-1}\).</li>
+                <li><strong>Same Row:</strong> Replace each letter with the letter to its <strong>right</strong> (wrap around).</li>
+                <li><strong>Same Column:</strong> Replace each letter with the letter <strong>below</strong> it (wrap around).</li>
+                <li><strong>Rectangle Rule:</strong> Replace each letter with the letter in its <strong>same row, but the other column</strong> of the rectangle.</li>
             </ol>
+            <p><em>Note:</em> For decryption, reverse the rules (Move Left for rows, Move Up for columns).</p>
         </div>
 
-        <!-- Section 6: Transposition & Modern Context -->
+        <!-- Section 6: Hill Cipher -->
         <div class="card">
-            <h2>6. Transposition & Modern Transition</h2>
+            <h2>6. Hill Cipher (Matrix Math)</h2>
+            <p>The Hill cipher encrypts blocks of text using matrix multiplication. The key \( K \) is an \( n \times n \) matrix.</p>
+            <div class="formula-box">
+                Encryption: \( C = K \times P \pmod{26} \)<br>
+                Decryption: \( P = K^{-1} \times C \pmod{26} \)
+            </div>
             
-            <h3>Transposition Ciphers</h3>
-            <p><strong>Keyless (Staff Cipher):</strong> Enter data horizontally in a table, read it vertically. Width of the table determines secrecy.</p>
-            <p><strong>Keyed:</strong> Divide plaintext into blocks and use a key to reorder (permute) the characters in each block individually.</p>
-
-            <h3>Transition to Modern Ciphers</h3>
-            <ul>
-                <li><strong>Character-Oriented:</strong> Traditional ciphers (A-Z).</li>
-                <li><strong>Bit-Oriented:</strong> Modern ciphers (8 or 16 bits). Essential for encrypting non-text data like graphics, audio, and video.</li>
-                <li><strong>Security:</strong> Bit-oriented ciphers increase the number of symbols in plaintext by 8 to 16 times, increasing security significantly.</li>
-            </ul>
-        </div>
-
-        <!-- Section 7: Key Management -->
-        <div class="card">
-            <h2>7. Key Management System</h2>
-            <ul>
-                <li><strong>Generation:</strong> Keys must be random and long enough to avoid prediction.</li>
-                <li><strong>Distribution:</strong> Moving keys to the user; difficult in symmetric systems as it requires a secure channel.</li>
-                <li><strong>Installation:</strong> Placing the key into device storage.</li>
-                <li><strong>Storage:</strong> Preserving integrity/confidentiality (e.g., storing keys in encrypted form).</li>
-                <li><strong>Change:</strong> Ending one key and starting another to lower interception risks.</li>
-                <li><strong>Control:</strong> Regulating the use and selection of keys for specific applications.</li>
-            </ul>
+            <h3>Steps to find the Inverse Key Matrix \( K^{-1} \) for Decryption:</h3>
+            <ol>
+                <li><strong>Compute the Determinant:</strong> \( det(K) \)</li>
+                <li><strong>Find the Inverse Determinant:</strong> Find \( x \) such that \( det(K) \times x \equiv 1 \pmod{26} \)</li>
+                <li><strong>Compute the Cofactor Matrix:</strong> Calculate the cofactor for every position in the matrix.</li>
+                <li><strong>Compute the Adjugate Matrix:</strong> Transpose the Cofactor matrix.</li>
+                <li><strong>Multiply:</strong> Multiply the Adjugate matrix by the Inverse Determinant modulo 26.</li>
+            </ol>
+            <p><em>Example from slides:</em> Key = "GYBNQKURP" translates to a 3x3 matrix. Determinant calculated is 441. \( 441 \equiv 25 \pmod{26} \). The modular inverse of 25 mod 26 is 25. The adjugate matrix is multiplied by 25 mod 26 to get \( K^{-1} \).</p>
         </div>
 
     </div>
