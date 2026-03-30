@@ -1,1 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3. Feistel & DES | CSE 4783</title>
+    <!-- MathJax for rendering math formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --background-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dee2e6;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 4px solid var(--secondary-color);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #bdc3c7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-link:hover {
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .formula-box {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            overflow-x: auto;
+        }
+
+        ul, ol {
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .code-block {
+            font-family: monospace;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Module 3: Feistel Cipher & DES</h1>
+        <a href="../index.html" class="nav-link">← Back to Syllabus</a>
+    </header>
+
+    <div class="container">
+        
+        <!-- Section 1: Feistel Cipher -->
+        <div class="card">
+            <h2>1. The Feistel Cipher</h2>
+            <p>The plaintext is divided into two equal-length blocks: Left (\( L_p \)) and Right (\( R_p \)). During encryption, a non-invertible function \( f \) takes the key \( K \) and \( R_p \) as input. The output is XOR-ed with \( L_p \).</p>
+            
+            <h3>Problems with Basic Feistel</h3>
+            <p>In the basic model, the right block of the plaintext never changes and remains the same in the ciphertext. This makes it highly vulnerable to attacks.</p>
+            
+            <h3>Enhancements</h3>
+            <ul>
+                <li><strong>Multiple Rounds:</strong> The number of rounds was increased.</li>
+                <li><strong>Swapper:</strong> A swapper element was added to swap the left and right blocks after every round.</li>
+                <li><strong>Multiple Keys:</strong> Different round keys (\( K_1, K_2, ... \)) are used. Decryption uses these keys in reverse order.</li>
+            </ul>
+
+            <div class="formula-box">
+                <strong>Mathematical Proof of Decryption (with Swapper):</strong><br>
+                \( L'_p = R'_c \oplus f(L'_c, K) \)<br>
+                Since \( R'_c = L_p \oplus f(R_p, K) \) and \( L'_c = R_p \):<br>
+                \( L'_p = L_p \oplus f(R_p, K) \oplus f(R_p, K) \)<br>
+                \( L'_p = L_p \oplus 0 = L_p \) (Using XOR identity \( X \oplus X = 0 \))
+            </div>
+        </div>
+
+        <!-- Section 2: DES Overview -->
+        <div class="card">
+            <h2>2. Data Encryption Standard (DES)</h2>
+            <p>Adopted by NIST in 1977, DES is the most widely used block cipher in the world. It is based directly on the enhanced Feistel cipher structure.</p>
+            <ul>
+                <li><strong>Block Size:</strong> 64 bits</li>
+                <li><strong>Key Size:</strong> 56 bits (originally 64 bits, but 8 are parity bits)</li>
+                <li><strong>Rounds:</strong> 16 rounds of processing</li>
+                <li><strong>Goal:</strong> Achieve a high degree of Shannon's <em>Diffusion</em> and <em>Confusion</em>.</li>
+            </ul>
+            
+            <h3>General Structure</h3>
+            <ol>
+                <li><strong>Initial Permutation (IP):</strong> 64-bit plaintext is permuted.</li>
+                <li><strong>16 Rounds:</strong> Feistel network using the \( F \) function and 16 distinct 48-bit round keys.</li>
+                <li><strong>32-bit Swap:</strong> Left and right halves are swapped.</li>
+                <li><strong>Final Permutation (Inverse IP):</strong> The inverse of the initial permutation creates the 64-bit ciphertext.</li>
+            </ol>
+        </div>
+
+        <!-- Section 3: The F Function & S-Boxes -->
+        <div class="card">
+            <h2>3. The DES \( F \) Function</h2>
+            <p>The core of DES is the \( F \) function. It takes a 32-bit Right-half input (\( R \)) and a 48-bit Round Key (\( K \)) and produces a 32-bit output.</p>
+            
+            <div class="formula-box">
+                \( F(R, K) = P(S(E(R) \oplus K)) \)
+            </div>
+            <ul>
+                <li><strong>\( E \) Expansion P-box:</strong> Expands 32 bits to 48 bits.</li>
+                <li><strong>XOR Operation:</strong> 48 bits from the E-box are XORed with the 48-bit Round Key \( K_i \).</li>
+                <li><strong>\( S \)-boxes:</strong> Shrinks 48 bits back to 32 bits.</li>
+                <li><strong>\( P \) Straight Permutation:</strong> Permutes the resulting 32 bits.</li>
+            </ul>
+
+            <h3>S-Boxes (Substitution Boxes)</h3>
+            <p>There are <strong>8 distinct S-boxes</strong>. Each takes a 6-bit input and produces a 4-bit output.</p>
+            <p><strong>Selection Rule:</strong> For a 6-bit input <code>b1 b2 b3 b4 b5 b6</code></p>
+            <ul>
+                <li><strong>Row Selection:</strong> The <em>outer</em> bits (1 and 6) combine to select one of 4 rows (00, 01, 10, 11).</li>
+                <li><strong>Column Selection:</strong> The <em>inner</em> 4 bits (2, 3, 4, 5) select the column (0 to 15).</li>
+            </ul>
+            <p><em>Example:</em> Input to \( S_1 \) is <code>101010</code>. Outer bits are <code>10</code> (Row 2). Inner bits are <code>0101</code> (Column 5). The value at Row 2, Column 5 is 6 (0110 in binary).</p>
+        </div>
+
+        <!-- Section 4: Key Generation -->
+        <div class="card">
+            <h2>4. DES Key Generation</h2>
+            <p>Produces <strong>sixteen 48-bit keys</strong> out of the original 56-bit cipher key. One for each round.</p>
+            <ol>
+                <li><strong>Parity Drop (PC-1):</strong> A compression transposition step. Drops parity bits at positions 8, 16, 24, 32, 40, 48, 56, and 64, leaving 56 bits.</li>
+                <li><strong>Split:</strong> Divides the 56 bits into two halves of 28 bits each.</li>
+                <li><strong>Circular Left Shift:</strong> Shifts each half by 1 or 2 bits depending on the round. 
+                    <ul>
+                        <li><strong>Rounds 1, 2, 9, 16:</strong> Shifting is done by <strong>1 bit</strong>.</li>
+                        <li><strong>Other Rounds:</strong> Shifting is done by <strong>2 bits</strong>.</li>
+                    </ul>
+                </li>
+                <li><strong>Compression P-box (PC-2):</strong> Compresses the 56-bit input to produce a 48-bit round key.</li>
+            </ol>
+        </div>
+
+        <!-- Section 5: Security and Avalanche Effect -->
+        <div class="card">
+            <h2>5. Avalanche Effect & Attacks on DES</h2>
+            <p><strong>Avalanche effect</strong> is a desirable property where a small change in the plaintext or key results in a significant change in the ciphertext (evidence of high diffusion/confusion).</p>
+            <ul>
+                <li>Changing 1 bit in plaintext affects ~34 bits in ciphertext.</li>
+                <li>Changing 1 bit in the key affects ~35 bits in ciphertext.</li>
+            </ul>
+
+            <h3>Known Attacks</h3>
+            <ul>
+                <li><strong>Brute-Force:</strong> Due to a key space of \( 2^{56} \approx 7.2 \times 10^{16} \), it was thought secure. However, the $250k <em>DES Cracker</em> found a key in 56 hours in 1999 (and later, in 22 hours). DES is now considered insecure.</li>
+                <li><strong>Differential Cryptanalysis:</strong> Can find a key with \( 2^{47} \) plaintext-ciphertext pairs.</li>
+                <li><strong>Linear Cryptanalysis:</strong> Can find a key with \( 2^{43} \) plaintext-ciphertext pairs.</li>
+            </ul>
+        </div>
+
+        <!-- Section 6: Multiple Encryption (3DES) -->
+        <div class="card">
+            <h2>6. Multiple Encryption (2DES & 3DES)</h2>
+            <p>To overcome DES's short key length without designing a whole new algorithm, multiple encryptions were proposed.</p>
+            
+            <h3>2DES & The Meet-In-The-Middle Attack</h3>
+            <div class="formula-box">
+                2DES Encryption: \( C = E_{K2}(E_{K1}(P)) \)<br>
+                Key length: \( 56 \times 2 = 112 \) bits
+            </div>
+            <p><strong>Vulnerability:</strong> 2DES is broken by the <em>Meet-in-the-Middle Attack</em>. Given a known pair (P, C):</p>
+            <ol>
+                <li>Encrypt P with all \( 2^{56} \) possible keys for K1.</li>
+                <li>Decrypt C with all \( 2^{56} \) possible keys for K2.</li>
+                <li>If the intermediate results match, try the keys on another pair.</li>
+                <li>Takes \( \approx 2^{57} \) steps, not much harder than cracking 1-DES.</li>
+            </ol>
+
+            <h3>3DES (Triple DES)</h3>
+            <p>Uses an Encrypt-Decrypt-Encrypt (EDE) sequence.</p>
+            <div class="formula-box">
+                3DES with 2 Keys: \( C = E_{K1}(D_{K2}(E_{K1}(M))) \)<br>
+                3DES with 3 Keys: \( C = E_{K3}(D_{K2}(E_{K1}(M))) \)
+            </div>
+            <p><strong>Backward Compatibility:</strong> If \( K_1 = K_2 \), 3DES acts just like regular 1-DES (Encrypts, decrypts to original, encrypts again). Standardized in ANSI X9.17 & ISO 8732.</p>
+            <p><strong>Note:</strong> Effective key length of 3-key 3DES is 112 bits, not 168 bits, due to a variation of the meet-in-the-middle attack.</p>
+        </div>
+
+    </div>
+
+</body>
+</html>
