@@ -277,7 +277,45 @@
                <strong>Change:</strong> Keys must be changed periodically to prevent interception.<br>
                <strong>Control:</strong> Implementing restraining influence over key usage.</p>
         </div>
+        <div class="card">
+            <h2>1. Categorization of Symmetric Ciphers</h2>
+            <p>A <strong>Symmetric Key Cipher</strong> uses the same secret key for both encryption and decryption. These are broadly divided into two strategies:</p>
+            <ul>
+                <li><strong>Substitution Cipher:</strong> Replaces a symbol (a single letter or group of letters) in the plaintext with another symbol. The identity of the character changes, but its position remains the same.</li>
+                <li><strong>Transposition Cipher:</strong> There is no substitution of characters. Instead, the <em>location</em> of characters is changed (reordered). The identity remains, but the position changes.</li>
+            </ul>
+        </div>
 
+        <div class="card">
+            <h2>2. Monoalphabetic Ciphers</h2>
+            <p>A <strong>Monoalphabetic Cipher</strong> is a substitution cipher where a symbol in the plaintext has a 1-to-1 relationship with a symbol in the ciphertext. A letter is always replaced by the same letter regardless of its position.</p>
+            
+            <h3>Additive / Shift / Caesar Cipher</h3>
+            <p>The simplest substitution method. Each letter in the plaintext is shifted a fixed number of positions (the key \(K\)) down the alphabet. Julius Caesar famously used a shift of 3.</p>
+        
+            <h3>Multiplicative Cipher</h3>
+            <p>The plaintext symbol value is multiplied by a key \(K \pmod{26}\). For this to be reversible (decipherable), the key \(K\) must be <em>coprime</em> to 26 (i.e., \(gcd(K, 26) = 1\)).</p>
+        
+            <h3>Affine Cipher</h3>
+            <p>A combination of the two above. It applies a multiplicative cipher first, followed by an additive cipher. It uses a pair of keys: \( (K_1, K_2) \).</p>
+        </div>
+
+        <div class="card">
+            <h2>3. Polyalphabetic Ciphers</h2>
+            <p>In a <strong>Polyalphabetic Cipher</strong>, a single character in the plaintext can have a 1-to-many relationship with characters in the ciphertext. The same character can be replaced by different characters depending on its position in the message.</p>
+            
+            <h3>Autokey Cipher</h3>
+            <p>A cipher where the key is automatically generated. Typically, the first subkey is a pre-shared number, and the subsequent subkeys are taken from the plaintext characters themselves.</p>
+        
+            <h3>Playfair Cipher</h3>
+            <p>The first cipher to encrypt <strong>pairs of letters</strong> (digraphs) instead of single letters. It uses a \(5 \times 5\) matrix of letters created using a keyword to determine how pairs are shifted or swapped.</p>
+        
+            <h3>Vigenere Cipher</h3>
+            <p>Uses a keyword to create a group of subkeys. The keyword is repeated over the length of the plaintext, and each letter of the plaintext is shifted by the value of the corresponding keyword letter.</p>
+        
+            <h3>Hill Cipher</h3>
+            <p>A mathematical cipher invented by Lester Hill. It divides plaintext into equal-size blocks and uses an \(n \times n\) <strong>square matrix</strong> as the key to perform linear algebra transformations on the blocks.</p>
+        </div>        
         <!-- Section 4: Substitution Ciphers -->
         <div class="card">
             <h2>4. Substitution Ciphers (Math & Formulas)</h2>
