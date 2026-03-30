@@ -1,1 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4. Modes of Operation | CSE 4783</title>
+    <!-- MathJax for rendering math formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --background-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dee2e6;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 4px solid var(--secondary-color);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #bdc3c7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-link:hover {
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .formula-box {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            overflow-x: auto;
+        }
+
+        ul {
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .highlight {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Module 4: Modes of Operation</h1>
+        <a href="../index.html" class="nav-link">← Back to Syllabus</a>
+    </header>
+
+    <div class="container">
+        
+        <!-- Section 1: Overview & Technical Notes -->
+        <div class="card">
+            <h2>1. Overview & Technical Notes</h2>
+            <p>Block ciphers (like DES) encrypt fixed-size blocks (e.g., 64-bit blocks). To use them in practice for arbitrary amounts of information, we partition the message into separate blocks. A <strong>Mode of Operation</strong> describes the process of encrypting each of these blocks under a single key.</p>
+            
+            <h3>Key Concepts</h3>
+            <ul>
+                <li><strong>Initialize Vector (IV):</strong> A block of bits used to randomize the encryption, ensuring that the same plaintext produces distinct ciphertexts.</li>
+                <li><strong>Nonce (Number Used Once):</strong> A random or pseudo-random number ensuring past communications cannot be reused in replay attacks. (Sometimes used interchangeably with IV).</li>
+                <li><strong>Padding:</strong> The final block may require padding to fit the fixed block size. Methods include adding null bytes, adding <code>0x80</code> followed by <code>0x00</code>s, or adding <em>n</em> bytes with the value <em>n</em> (PKCS padding).</li>
+            </ul>
+        </div>
+
+        <!-- Section 2: ECB Mode -->
+        <div class="card">
+            <h2>2. Electronic Codebook (ECB) Mode</h2>
+            <p>The message is broken into independent blocks which are encrypted separately. Each block is a value substituted like a codebook.</p>
+            
+            <div class="formula-box">
+                Encryption: \( C_i = E_K(P_i) \)
+            </div>
+
+            <ul>
+                <li><strong>Strengths:</strong> It's very simple.</li>
+                <li><strong>Weaknesses:</strong> Repetitive information in the plaintext will show up as identical blocks in the ciphertext. If the same message is sent twice, the ciphertext is identical.</li>
+                <li><strong>Typical Application:</strong> Secure transmission of short pieces of single values (e.g., sending a temporary encryption key).</li>
+            </ul>
+        </div>
+
+        <!-- Section 3: CBC Mode -->
+        <div class="card">
+            <h2>3. Cipher Block Chaining (CBC) Mode</h2>
+            <p>Solves the security deficiencies of ECB. Each previous cipher block is chained as an input with the current plaintext block before encryption.</p>
+            
+            <div class="formula-box">
+                \( C_0 = IV \)<br>
+                Encryption: \( C_i = E_K(P_i \oplus C_{i-1}) \)
+            </div>
+
+            <ul>
+                <li>Repeated plaintext blocks are encrypted differently because the encryption of a block depends on the current and <span class="highlight">all blocks before it</span>.</li>
+                <li>Reusing an IV leaks some information about the first block of plaintext, and about any common prefix shared by two messages.</li>
+                <li><strong>Typical Application:</strong> Bulk data encryption, Authentication.</li>
+            </ul>
+        </div>
+
+        <!-- Section 4: CFB and OFB Modes (Stream Ciphers) -->
+        <div class="card">
+            <h2>4. CFB and OFB Modes (Stream Ciphers)</h2>
+            <p>Both of these modes turn a block cipher into a <strong>stream cipher</strong>, allowing you to encrypt any number of bits (like single bits or bytes) at a time.</p>
+
+            <h3>Cipher FeedBack (CFB)</h3>
+            <p>Encrypts the previous <em>ciphertext</em>, then combines it with the plaintext block using XOR.</p>
+            <div class="formula-box">
+                \( C_0 = IV \)<br>
+                Encryption: \( C_i = P_i \oplus \text{SelectLeft}(E_K(\text{ShiftLeft}(C_{i-1}))) \)
+            </div>
+            <ul>
+                <li>A corrupted ciphertext segment during transmission will affect the current and <em>next several</em> plaintext segments.</li>
+                <li><strong>Typical Application:</strong> Stream data encryption, Authentication.</li>
+            </ul>
+
+            <h3>Output FeedBack (OFB)</h3>
+            <p>Similar to CFB, but the output of the <em>encryption function</em> is fed back, instead of the ciphertext. The feedback is independent of the message.</p>
+            <div class="formula-box">
+                \( O_0 = IV \)<br>
+                Key Stream: \( O_i = E_K(O_{i-1}) \)<br>
+                Encryption: \( C_i = P_i \oplus O_i \)
+            </div>
+            <ul>
+                <li>Each bit in the ciphertext is independent of the previous bits, which <strong>avoids error propagation</strong> over noisy channels.</li>
+                <li>Pre-computing the forward cipher is possible.</li>
+                <li><strong>Security Issue:</strong> If plaintext is known, the key stream \( O_i \) is known, which can easily decrypt other messages using the same IV. <span class="highlight">Reusing an IV completely destroys security.</span></li>
+                <li><strong>Typical Application:</strong> Stream encryption over noisy channels.</li>
+            </ul>
+        </div>
+
+        <!-- Section 5: CTR Mode -->
+        <div class="card">
+            <h2>5. Counter (CTR) Mode</h2>
+            <p>Encrypts a counter value with the key, rather than using any feedback. The counter for each plaintext block must be different and unpredictable.</p>
+            
+            <div class="formula-box">
+                Key Stream: \( O_i = E_K(Counter_i) \)<br>
+                Encryption: \( C_i = P_i \oplus O_i \)
+            </div>
+
+            <ul>
+                <li><strong>Strengths:</strong> Fast encryption/decryption, allows <strong>parallel processing</strong> (because there is no chaining/dependency on previous blocks), and provides random access to encrypted data blocks.</li>
+                <li>Needs only the encryption algorithm (decryption just generates the same key stream and XORs it).</li>
+                <li><strong>Typical Application:</strong> General purpose block-oriented transmission, High-speed network encryptions.</li>
+            </ul>
+        </div>
+
+        <!-- Section 6: Mode Comparisons -->
+        <div class="card">
+            <h2>6. Comparison of Modes</h2>
+            
+            <h3>CBC vs CTR</h3>
+            <table>
+                <tr>
+                    <th>Feature</th>
+                    <th>CBC (Cipher Block Chaining)</th>
+                    <th>CTR (Counter)</th>
+                </tr>
+                <tr>
+                    <td><strong>Padding</strong></td>
+                    <td>Padding is needed</td>
+                    <td>No padding needed</td>
+                </tr>
+                <tr>
+                    <td><strong>Processing</strong></td>
+                    <td>No parallel processing</td>
+                    <td>Parallel processing allowed</td>
+                </tr>
+                <tr>
+                    <td><strong>Functions Needed</strong></td>
+                    <td>Separate Encryption and Decryption functions</td>
+                    <td>Encryption function alone is enough</td>
+                </tr>
+                <tr>
+                    <td><strong>Initialization</strong></td>
+                    <td>Random IV or Nonce</td>
+                    <td>Unique Nonce</td>
+                </tr>
+                <tr>
+                    <td><strong>IV Reuse Penalty</strong></td>
+                    <td>Leaks some info about initial plaintext block</td>
+                    <td>Leaks info about the <em>entire message</em></td>
+                </tr>
+            </table>
+
+            <h3>Summary Table</h3>
+            <table>
+                <tr>
+                    <th>Mode</th>
+                    <th>Type</th>
+                    <th>Application</th>
+                </tr>
+                <tr>
+                    <td><strong>ECB</strong></td>
+                    <td>Block Cipher</td>
+                    <td>Secure transmission of a single encryption key.</td>
+                </tr>
+                <tr>
+                    <td><strong>CBC</strong></td>
+                    <td>Block Cipher</td>
+                    <td>Commonly used method. Used for authentication and bulk data.</td>
+                </tr>
+                <tr>
+                    <td><strong>CFB</strong></td>
+                    <td>Stream Cipher</td>
+                    <td>Primary stream cipher. Used for authentication.</td>
+                </tr>
+                <tr>
+                    <td><strong>OFB</strong></td>
+                    <td>Stream Cipher</td>
+                    <td>Stream cipher well suited for transmission over noisy channels.</td>
+                </tr>
+                <tr>
+                    <td><strong>CTR</strong></td>
+                    <td>Stream Cipher</td>
+                    <td>General purpose. Used for high-speed communications.</td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>
