@@ -81,11 +81,13 @@
         <div class="card">
             <h2>1. What is a Digital Signature?</h2>
             <p>A <strong>digital signature</strong> is a mathematical scheme that proves the authenticity of a digital message or document. It is the digital equivalent of a handwritten signature or a wax seal.</p>
-            <h3>Three Security Services Provided</h3>
+            <h3>Core Security Services in Cryptography</h3>
+            <p>The primary objectives of a security system are called security services. Digital signatures specifically provide the last three, while encryption provides the first:</p>
             <ul>
-                <li><strong>Authentication:</strong> Verifies the identity of the signer — the message came from a specific private key holder.</li>
-                <li><strong>Integrity:</strong> Guarantees the message was not modified after it was signed.</li>
-                <li><strong>Non-Repudiation:</strong> The signer cannot later deny having signed the message (unlike a MAC/HMAC where both parties share the secret key).</li>
+                <li><strong>Confidentiality:</strong> Information is kept secret from all but authorized parties. <em>(Provided by encryption, NOT digital signatures)</em></li>
+                <li><strong>Integrity:</strong> Ensures that a message has not been modified in transit.</li>
+                <li><strong>Message Authentication:</strong> Ensures that the sender of a message is authentic (also known as data origin authentication).</li>
+                <li><strong>Non-Repudiation:</strong> Ensures that the sender of a message cannot later deny having created or sent the message.</li>
             </ul>
             <div class="tip-box">
                 <strong>💡 Key Difference from MACs:</strong> A digital signature uses an <em>asymmetric</em> key pair. The signer uses their <strong>private key</strong>. Anyone with the <strong>public key</strong> can verify. This is what enables non-repudiation — only you have your private key.
