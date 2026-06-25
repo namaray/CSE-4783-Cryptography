@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6. Key Establishment | CSE 4783</title>
-    <meta name="description" content="Study notes on Key Establishment protocols for CSE 4783 Cryptography.">
+    <meta name="description" content="Study notes on Key Establishment — DHKE with Certificates, MIM Attack, PKI, and X.509 — for CSE 4783.">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
@@ -26,171 +26,349 @@
             --tip-border: #059669;
             --danger-bg: #fee2e2;
             --danger-border: #dc2626;
+            --info-bg: #eff6ff;
+            --info-border: #3b82f6;
         }
         * { box-sizing: border-box; }
         body { font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); line-height: 1.7; }
         header {
             background: linear-gradient(135deg, #0c1a2e 0%, #0369a1 100%);
             color: white; padding: 2.5rem 1rem; text-align: center;
-            border-bottom: 4px solid var(--accent);
+            border-bottom: 4px solid var(--accent); position: relative; overflow: hidden;
         }
-        header h1 { margin: 0; font-size: 2.2rem; font-weight: 700; }
-        header p { color: var(--accent-light); margin: 0.5rem 0 0; }
-        .nav-link { display: inline-block; margin-top: 1rem; color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: color 0.2s; }
+        header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at top center, rgba(14,165,233,0.2) 0%, transparent 70%); }
+        header h1 { margin: 0; font-size: 2.2rem; font-weight: 700; position: relative; }
+        header p { color: var(--accent-light); margin: 0.5rem 0 0; position: relative; }
+        .nav-link { display: inline-block; margin-top: 1rem; color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; font-size: 0.9rem; position: relative; }
         .nav-link:hover { color: white; }
-        .container { max-width: 920px; margin: 2.5rem auto; padding: 0 1.5rem; }
-        .card { background: var(--card-bg); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 16px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+        .container { max-width: 940px; margin: 2.5rem auto; padding: 0 1.5rem; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 16px rgba(0,0,0,0.06); border: 1px solid var(--border); transition: box-shadow 0.2s; }
         .card:hover { box-shadow: 0 4px 24px rgba(14,165,233,0.12); }
         h2 { color: var(--primary); font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-top: 0; }
-        h3 { color: var(--accent); margin-top: 1.5rem; font-weight: 600; font-size: 1.1rem; }
-        .formula-box { background: var(--formula-bg); border-left: 4px solid var(--formula-border); padding: 1rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; font-size: 1.05rem; }
+        h3 { color: #0369a1; margin-top: 1.5rem; font-size: 1.1rem; font-weight: 600; }
+        .formula-box { background: var(--formula-bg); border-left: 4px solid var(--formula-border); padding: 1rem 1.4rem; margin: 1rem 0; border-radius: 0 8px 8px 0; font-size: 1.04rem; }
         .tip-box { background: var(--tip-bg); border-left: 4px solid var(--tip-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
         .warning-box { background: var(--warning-bg); border-left: 4px solid var(--warning-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
         .danger-box { background: var(--danger-bg); border-left: 4px solid var(--danger-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
-        table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; }
+        .info-box { background: var(--info-bg); border-left: 4px solid var(--info-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.95rem; }
         th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
         th { background: var(--primary); color: white; font-weight: 600; }
         tr:nth-child(even) td { background: #f0f9ff; }
         ul, ol { padding-left: 1.5rem; }
         li { margin-bottom: 0.4rem; }
-        .protocol-steps {
-            counter-reset: step;
-            padding-left: 0;
-            list-style: none;
-        }
-        .protocol-steps li {
-            position: relative;
-            padding: 0.6rem 0.6rem 0.6rem 3rem;
-            margin-bottom: 0.6rem;
-            background: #f8fbff;
-            border-radius: 6px;
+
+        /* Protocol diagram */
+        .protocol-diagram {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0;
+            margin: 1.5rem 0;
             border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            font-size: 0.85rem;
         }
-        .protocol-steps li::before {
-            counter-increment: step;
-            content: counter(step);
-            position: absolute;
-            left: 0.8rem;
-            top: 50%; transform: translateY(-50%);
-            background: var(--accent);
-            color: white;
-            width: 1.5rem; height: 1.5rem;
-            border-radius: 50%;
+        .pd-col-header {
+            background: var(--primary); color: white;
+            font-weight: 700; text-align: center; padding: 0.7rem;
+            font-size: 0.9rem;
+        }
+        .pd-alice { background: #e0f2fe; border-right: 2px dashed #bae6fd; }
+        .pd-middle { background: #fefce8; text-align: center; }
+        .pd-bob { background: #f0fdf4; border-left: 2px dashed #bbf7d0; }
+        .pd-row { display: contents; }
+        .pd-cell { padding: 0.65rem 0.8rem; border-top: 1px solid var(--border); }
+        .pd-cell.arrow { text-align: center; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; flex-direction: column; color: #0369a1; font-weight: 600; font-size: 0.75rem; }
+        .arrow-line { font-size: 1.3rem; }
+
+        /* Steps */
+        .steps { counter-reset: step; padding-left: 0; list-style: none; }
+        .steps li {
+            position: relative; padding: 0.8rem 0.8rem 0.8rem 3.2rem;
+            margin-bottom: 0.7rem; background: #f0f9ff;
+            border-radius: 8px; border: 1px solid #bae6fd;
+        }
+        .steps li::before {
+            counter-increment: step; content: counter(step);
+            position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%);
+            background: var(--accent); color: white;
+            width: 1.7rem; height: 1.7rem; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; font-weight: 700;
+            font-size: 0.82rem; font-weight: 700;
         }
+
+        .cert-box {
+            background: #f0fdf4; border: 2px solid #059669; border-radius: 10px;
+            padding: 1.2rem 1.5rem; margin: 1rem 0; font-size: 0.92rem;
+        }
+        .cert-box .cert-title { font-weight: 700; font-size: 1rem; color: #065f46; margin-bottom: 0.6rem; }
+        .cert-field { display: flex; gap: 0.8rem; padding: 0.3rem 0; border-bottom: 1px dashed #6ee7b7; }
+        .cert-field:last-child { border-bottom: none; }
+        .cert-key { font-weight: 600; color: #065f46; min-width: 160px; font-size: 0.85rem; }
+        .cert-val { color: #374151; font-size: 0.85rem; }
+
         footer { text-align: center; padding: 2rem; background: var(--primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Module 6: Key Establishment</h1>
-        <p>Securely agreeing on cryptographic keys between parties</p>
-        <a href="../index.html" class="nav-link">← Back to Home</a>
-    </header>
+<header>
+    <h1>Module 6: Key Establishment</h1>
+    <p>DHKE, the Man-in-the-Middle Attack, and DHKE with Certificates</p>
+    <a href="../index.html" class="nav-link">← Back to Home</a>
+</header>
 
-    <div class="container">
+<div class="container">
 
-        <div class="card">
-            <h2>1. The Key Distribution Problem</h2>
-            <p>For two parties to communicate securely using symmetric cryptography, they first need to agree on a shared secret key. But how can they securely exchange this key over an insecure channel — without an adversary intercepting it?</p>
-            <ul>
-                <li><strong>Key Distribution:</strong> Getting a key from the generator to the user(s) securely.</li>
-                <li><strong>Key Agreement:</strong> A protocol by which two or more parties jointly establish a shared secret without either party choosing the key alone.</li>
-                <li><strong>Key Transport:</strong> One party generates a key and securely sends it to another party.</li>
-            </ul>
-            <div class="warning-box">
-                <strong>⚠️ Problem with Symmetric Key Distribution:</strong> For <em>n</em> users, you need \( \frac{n(n-1)}{2} \) unique keys for all pairs to communicate privately. This becomes unmanageable for large networks.
-            </div>
+    <!-- =================== 1. THE PROBLEM =================== -->
+    <div class="card">
+        <h2>1. The Key Distribution Problem</h2>
+        <p>For symmetric crypto, \( n \) users communicating pairwise need:</p>
+        <div class="formula-box">
+            \( \frac{n(n-1)}{2} \) unique secret keys
         </div>
-
-        <div class="card">
-            <h2>2. Diffie-Hellman Key Exchange (DHKE)</h2>
-            <p>Proposed by Whitfield Diffie and Martin Hellman in 1976. The first practical protocol for establishing a <strong>shared secret over a public channel</strong>. It is based on the computational difficulty of the <strong>Discrete Logarithm Problem</strong>.</p>
-
-            <h3>Setup (Public Parameters)</h3>
-            <ul>
-                <li>A large prime number \( p \)</li>
-                <li>A generator \( g \) (a primitive root modulo \( p \)), where \( 1 < g < p \)</li>
-            </ul>
-
-            <h3>Protocol Steps</h3>
-            <ol class="protocol-steps">
-                <li>Alice chooses a secret random integer \( a \) and computes \( A = g^a \pmod{p} \). She sends \( A \) to Bob.</li>
-                <li>Bob chooses a secret random integer \( b \) and computes \( B = g^b \pmod{p} \). He sends \( B \) to Alice.</li>
-                <li>Alice computes the shared secret: \( K = B^a \pmod{p} = g^{ba} \pmod{p} \)</li>
-                <li>Bob computes the shared secret: \( K = A^b \pmod{p} = g^{ab} \pmod{p} \)</li>
-                <li>Both arrive at the same shared key \( K \) since \( g^{ab} = g^{ba} \).</li>
-            </ol>
-
-            <div class="formula-box">
-                Public: \( p, g \) &nbsp;&nbsp;&nbsp; Alice's secret: \( a \) &nbsp;&nbsp;&nbsp; Bob's secret: \( b \) <br><br>
-                Shared Key: \( K = g^{ab} \pmod{p} \)
-            </div>
-
-            <h3>Security: The Discrete Logarithm Problem</h3>
-            <p>An eavesdropper Eve sees \( p, g, A = g^a \pmod p, B = g^b \pmod p \). To find the shared secret, she must compute either \( a \) or \( b \) from \( A \) or \( B \), which is the <strong>Discrete Logarithm Problem</strong>. No efficient algorithm is known for large primes.</p>
-
-            <div class="danger-box">
-                <strong>🚨 Vulnerability: Man-in-the-Middle (MITM) Attack!</strong><br>
-                DHKE does not provide authentication. Eve can intercept the exchange, pose as Bob to Alice (establishing key \( K_1 = g^{ae} \)) and pose as Alice to Bob (establishing key \( K_2 = g^{be} \)), reading and re-encrypting all traffic. DHKE must be combined with authentication (e.g., digital signatures) to be secure.
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>3. Key Distribution Center (KDC)</h2>
-            <p>A trusted third party that helps manage key distribution in a network with many users. Each user shares a unique master key with the KDC.</p>
-
-            <h3>Needham-Schroeder Protocol (Simplified)</h3>
-            <p>When Alice wants to communicate with Bob:</p>
-            <ol class="protocol-steps">
-                <li>Alice sends her ID, Bob's ID, and a nonce \( N_A \) to the KDC.</li>
-                <li>KDC generates a session key \( K_{AB} \) and sends Alice: \( E_{K_A}(K_{AB}, N_A, B, E_{K_B}(K_{AB}, A)) \). The portion encrypted with Bob's master key is a "ticket".</li>
-                <li>Alice decrypts her portion to get \( K_{AB} \) and the ticket. She forwards the ticket to Bob.</li>
-                <li>Bob decrypts the ticket with his master key \( K_B \) to get \( K_{AB} \) and Alice's identity.</li>
-                <li>Alice and Bob now share \( K_{AB} \) and can communicate securely.</li>
-            </ol>
-            <div class="warning-box">
-                <strong>⚠️ KDC Limitations:</strong> Single point of failure. If the KDC is compromised, all communications are exposed. Requires a secure channel to establish master keys with all users.
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>4. Public Key Infrastructure (PKI) & Certificates</h2>
-            <p>Public key cryptography solves the key distribution problem — anyone can use Alice's public key. But how do you verify the public key you received <em>really</em> belongs to Alice and not an attacker?</p>
-            <h3>Digital Certificates</h3>
-            <p>A digital certificate is a document that binds a public key to an identity (name, organization, etc.). It is digitally signed by a trusted <strong>Certificate Authority (CA)</strong>.</p>
-            <ul>
-                <li><strong>Certificate Contents:</strong> Subject name, Subject's public key, Issuer (CA) name, Validity period, CA's digital signature.</li>
-                <li><strong>X.509 Standard:</strong> The most widely used certificate format (used in HTTPS/TLS).</li>
-            </ul>
-            <h3>Chain of Trust</h3>
-            <p>CAs form a hierarchy. A <strong>Root CA</strong> signs certificates for <strong>Intermediate CAs</strong>, which sign certificates for end entities. Browsers and OS pre-install Root CA certificates as "trust anchors."</p>
-            <div class="tip-box">
-                <strong>💡 Certificate Revocation:</strong> If a private key is compromised, the corresponding certificate can be revoked. This is managed via <strong>Certificate Revocation Lists (CRL)</strong> or <strong>OCSP</strong> (Online Certificate Status Protocol).
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>5. Elliptic Curve Diffie-Hellman (ECDH)</h2>
-            <p>A variant of DHKE using <strong>Elliptic Curve Cryptography (ECC)</strong>. ECC provides the same security as RSA/DHKE but with much smaller key sizes, making it ideal for mobile and constrained devices.</p>
-            <h3>Why ECC?</h3>
-            <table>
-                <tr><th>Security Level (bits)</th><th>RSA/DHKE Key Size</th><th>ECC Key Size</th></tr>
-                <tr><td>80</td><td>1024 bits</td><td>160 bits</td></tr>
-                <tr><td>112</td><td>2048 bits</td><td>224 bits</td></tr>
-                <tr><td>128</td><td>3072 bits</td><td>256 bits</td></tr>
-                <tr><td>256</td><td>15360 bits</td><td>512 bits</td></tr>
-            </table>
-            <p>The security of ECC is based on the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>, which is considered harder to solve than the standard discrete logarithm problem for the same key size.</p>
-        </div>
-
+        <p>This becomes unmanageable at scale. <strong>Public-key / asymmetric cryptography</strong> solves this — anyone can encrypt to Alice using her public key, but only Alice can decrypt. The remaining challenge: <em>how do you securely distribute and authenticate public keys?</em></p>
     </div>
 
-    <footer>
-        <p>CSE 4783 Cryptography Study Guide | Module 6: Key Establishment</p>
-    </footer>
+    <!-- =================== 2. DHKE BASICS =================== -->
+    <div class="card">
+        <h2>2. Diffie-Hellman Key Exchange (DHKE) — Basics</h2>
+        <p>DHKE lets two parties agree on a shared secret over a public channel. Based on the <strong>Discrete Logarithm Problem</strong>.</p>
+
+        <h3>Public Parameters (known to everyone)</h3>
+        <ul>
+            <li>\( p \) — a large prime (e.g., \( p > 2^{1024} \))</li>
+            <li>\( \alpha \) — a primitive root (generator) modulo \( p \)</li>
+        </ul>
+
+        <h3>Protocol</h3>
+        <div class="protocol-diagram">
+            <div class="pd-col-header pd-alice">Alice</div>
+            <div class="pd-col-header pd-middle">Public Channel</div>
+            <div class="pd-col-header pd-bob">Bob</div>
+
+            <div class="pd-cell pd-alice">Chooses secret \( a \) (private key)<br>Computes \( A = \alpha^a \bmod p \)</div>
+            <div class="pd-cell arrow"><span class="arrow-line">A ──────────→</span></div>
+            <div class="pd-cell pd-bob">Chooses secret \( b \) (private key)<br>Computes \( B = \alpha^b \bmod p \)</div>
+
+            <div class="pd-cell pd-alice">Receives \( B \)<br>Computes \( k_{AB} = B^a \bmod p = \alpha^{ba} \bmod p \)</div>
+            <div class="pd-cell arrow"><span class="arrow-line">←────────── B</span></div>
+            <div class="pd-cell pd-bob">Sends \( B \), receives \( A \)<br>Computes \( k_{AB} = A^b \bmod p = \alpha^{ab} \bmod p \)</div>
+        </div>
+
+        <div class="formula-box">
+            Shared Secret: \( k_{AB} = \alpha^{ab} \bmod p \) &nbsp;&nbsp; (same for both, since \( \alpha^{ab} = \alpha^{ba} \))
+        </div>
+
+        <div class="tip-box">
+            <strong>💡 Security basis:</strong> An eavesdropper sees \( p, \alpha, A = \alpha^a \bmod p, B = \alpha^b \bmod p \). Computing \( a \) or \( b \) from these is the <strong>Discrete Logarithm Problem</strong> — computationally infeasible for large \( p \).<br><br>
+            If parameters are carefully chosen (especially \( p > 2^{1024} \)), DHKE is <strong>secure against passive (listen-only) attacks</strong>.
+        </div>
+    </div>
+
+    <!-- =================== 3. MIM ATTACK =================== -->
+    <div class="card">
+        <h2>3. The Man-in-the-Middle (MIM) Attack</h2>
+        <p>DHKE is <strong>not authenticated</strong> — it is completely broken against an active attacker (Oscar) who can intercept and modify messages. This is the most important vulnerability to understand.</p>
+
+        <h3>How the Attack Works</h3>
+        <div class="protocol-diagram">
+            <div class="pd-col-header pd-alice">Alice</div>
+            <div class="pd-col-header" style="background:#7f1d1d;color:white;">Oscar (Attacker)</div>
+            <div class="pd-col-header pd-bob">Bob</div>
+
+            <div class="pd-cell pd-alice">Sends \( A = \alpha^a \bmod p \)</div>
+            <div class="pd-cell arrow" style="background:#fef2f2;">
+                <span class="arrow-line" style="color:#dc2626;">A ──→ intercepts ──→ A′</span>
+                <small>Oscar sends his own \( A' = \alpha^o \bmod p \) to Bob</small>
+            </div>
+            <div class="pd-cell pd-bob">Receives \( A' \) (thinks it's from Alice)</div>
+
+            <div class="pd-cell pd-alice">Receives \( B' \) (thinks it's from Bob)</div>
+            <div class="pd-cell arrow" style="background:#fef2f2;">
+                <span class="arrow-line" style="color:#dc2626;">B′ ←── intercepts ←── B</span>
+                <small>Oscar sends his own \( B' = \alpha^o \bmod p \) to Alice</small>
+            </div>
+            <div class="pd-cell pd-bob">Sends \( B = \alpha^b \bmod p \)</div>
+
+            <div class="pd-cell pd-alice">Computes \( k_{AO} = (B')^a = \alpha^{oa} \)</div>
+            <div class="pd-cell arrow" style="background:#fef2f2; font-size:0.78rem; text-align:center; padding:0.5rem;">
+                Knows both keys:<br>
+                \( k_{AO} = A^o = \alpha^{ao} \)<br>
+                \( k_{BO} = B^o = \alpha^{bo} \)
+            </div>
+            <div class="pd-cell pd-bob">Computes \( k_{BO} = (A')^b = \alpha^{ob} \)</div>
+        </div>
+
+        <div class="danger-box">
+            <strong>🚨 Result:</strong> Oscar now holds <em>two separate session keys</em> — one with Alice (\( k_{AO} \)) and one with Bob (\( k_{BO} \)). He can read all messages, decrypt them with one key, and re-encrypt with the other. Alice and Bob believe they are talking to each other.
+        </div>
+
+        <h3>Why the Attack Works — Root Cause</h3>
+        <div class="formula-box">
+            Alice computes: \( k_{AO} = (B')^a = (\alpha^o)^a \)<br>
+            Oscar computes: \( k_{AO} = A^o = (\alpha^a)^o \) &nbsp;&nbsp; ✓ same key<br><br>
+            Bob computes: &nbsp;&nbsp; \( k_{BO} = (A')^b = (\alpha^o)^b \)<br>
+            Oscar computes: \( k_{BO} = B^o = (\alpha^b)^o \) &nbsp;&nbsp; ✓ same key
+        </div>
+
+        <div class="info-box">
+            <strong>📌 Underlying Problem:</strong> Public keys are <em>not authenticated</em>. When Alice receives what is supposedly Bob's public key, she has no way to verify it really belongs to Bob — the bits have no identity attached.<br><br>
+            <strong>The MIM attack is not restricted to DHKE.</strong> It applies to <em>any</em> public-key scheme (RSA, ECDSA, etc.) by the same pattern: Oscar replaces a party's public key with his own.
+        </div>
+    </div>
+
+    <!-- =================== 4. CERTIFICATES =================== -->
+    <div class="card">
+        <h2>4. Certificates — The Solution</h2>
+        <p>To prevent the MIM attack, all public keys must be <strong>digitally signed by a trusted third party</strong>. This signed binding is called a <strong>Certificate</strong>.</p>
+
+        <h3>What is a Certificate?</h3>
+        <div class="formula-box">
+            \( \text{Certificate} = \text{public key} + \text{ID(user)} + \text{digital signature over public key and ID} \)
+        </div>
+
+        <p>In formal notation, Alice's certificate issued by a Certificate Authority (CA) is:</p>
+        <div class="formula-box">
+            \( \text{Cert}(\text{Alice}) = \left( k_{\text{pub}},\; \text{ID}(\text{Alice}),\; \text{sig}_{K_{CA}}\!\left(k_{\text{pub}},\; \text{ID}(\text{Alice})\right) \right) \)
+        </div>
+
+        <div class="cert-box">
+            <div class="cert-title">📜 Example Certificate for Alice</div>
+            <div class="cert-field"><span class="cert-key">Subject</span><span class="cert-val">Alice (ID = alice@example.com)</span></div>
+            <div class="cert-field"><span class="cert-key">Subject's Public Key</span><span class="cert-val">\( k_{\text{pub,Alice}} = \alpha^a \bmod p \)</span></div>
+            <div class="cert-field"><span class="cert-key">Issuer (CA)</span><span class="cert-val">Trusted Certificate Authority</span></div>
+            <div class="cert-field"><span class="cert-key">Validity Period</span><span class="cert-val">2024-01-01 to 2025-01-01</span></div>
+            <div class="cert-field"><span class="cert-key">CA's Signature</span><span class="cert-val">\( \text{sig}_{K_{CA}}(k_{\text{pub,Alice}},\; \text{ID}(\text{Alice})) \)</span></div>
+        </div>
+
+        <ul>
+            <li>The CA signs the certificate with its <strong>private key \( k_{CA} \)</strong>.</li>
+            <li>Anyone who trusts the CA can verify the certificate using the CA's <strong>public key \( K_{\text{pub,CA}} \)</strong>.</li>
+            <li>Certificates <strong>bind the identity of a user to their public key</strong> — breaking the link that the MIM attack exploits.</li>
+        </ul>
+    </div>
+
+    <!-- =================== 5. DHKE WITH CERTIFICATES — THE MAIN TOPIC =================== -->
+    <div class="card">
+        <h2>5. DHKE with Certificates ⭐ (Main Topic)</h2>
+        <p>The authenticated version of DHKE. Both Alice and Bob obtain certificates from the CA <em>in advance</em>. These certificates are then exchanged during the key exchange to authenticate each other's DH public key.</p>
+
+        <h3>Pre-Setup (done once, before the protocol)</h3>
+        <ul>
+            <li>Alice's cert: \( \text{Cert}(\text{Alice}) = ((A,\, \text{ID}_A),\; \text{sig}_{K_{CA}}(A, \text{ID}_A)) \) where \( A = \alpha^a \bmod p \)</li>
+            <li>Bob's cert: \( \text{Cert}(\text{Bob}) = ((B,\, \text{ID}_B),\; \text{sig}_{K_{CA}}(B, \text{ID}_B)) \) where \( B = \alpha^b \bmod p \)</li>
+            <li>Both Alice and Bob already know the CA's public key \( K_{\text{pub,CA}} \)</li>
+        </ul>
+
+        <h3>Protocol Execution</h3>
+        <div class="protocol-diagram">
+            <div class="pd-col-header pd-alice">Alice</div>
+            <div class="pd-col-header pd-middle">Public Channel</div>
+            <div class="pd-col-header pd-bob">Bob</div>
+
+            <div class="pd-cell pd-alice">Sends her certificate</div>
+            <div class="pd-cell arrow">
+                <span class="arrow-line">Cert(Alice) ──────→</span>
+            </div>
+            <div class="pd-cell pd-bob">Receives Cert(Alice)</div>
+
+            <div class="pd-cell pd-alice">Receives Cert(Bob)</div>
+            <div class="pd-cell arrow">
+                <span class="arrow-line">←────── Cert(Bob)</span>
+            </div>
+            <div class="pd-cell pd-bob">Sends his certificate</div>
+
+            <div class="pd-cell pd-alice">
+                Verifies Bob's cert:<br>
+                \( \text{ver}_{K_{\text{pub,CA}}}(\text{Cert}(\text{Bob})) \)<br>
+                ✅ If valid: extracts \( B \)<br>
+                Computes \( k_{AB} = B^a \bmod p \)
+            </div>
+            <div class="pd-cell arrow">—</div>
+            <div class="pd-cell pd-bob">
+                Verifies Alice's cert:<br>
+                \( \text{ver}_{K_{\text{pub,CA}}}(\text{Cert}(\text{Alice})) \)<br>
+                ✅ If valid: extracts \( A \)<br>
+                Computes \( k_{AB} = A^b \bmod p \)
+            </div>
+        </div>
+
+        <div class="formula-box">
+            Shared secret: \( k_{AB} = \alpha^{ab} \bmod p \) — established securely and <strong>with mutual authentication</strong>
+        </div>
+
+        <div class="tip-box">
+            <strong>✅ Why MIM fails now:</strong> Oscar cannot forge certificates because he does not have the CA's private key \( k_{CA} \). If Oscar tries to substitute his own public key, the certificate verification step will fail — Alice and Bob will detect the tampering and abort.
+        </div>
+
+        <h3>Why This is Better Than Exchanging Raw Public Keys</h3>
+        <div class="info-box">
+            <strong>Q: Haven't we just moved the problem?</strong> We still need to authenticate the CA's public key \( K_{\text{pub,CA}} \).<br><br>
+            <strong>A: Yes, but only once.</strong> The CA's public key is distributed once at system setup — browsers, for example, are shipped with the CA public keys pre-installed. The authenticated channel is the (hopefully) correct distribution of the original software. This is dramatically more scalable than authenticating every individual public key.
+        </div>
+    </div>
+
+    <!-- =================== 6. PKI =================== -->
+    <div class="card">
+        <h2>6. Public-Key Infrastructure (PKI)</h2>
+        <p><strong>Definition:</strong> The entire system formed by Certificate Authorities together with the necessary support mechanisms is called a <strong>Public-Key Infrastructure (PKI)</strong>.</p>
+
+        <h3>X.509 Certificate Standard</h3>
+        <p>In real-world systems, certificates contain much more than just a public key and signature. The <strong>X.509</strong> standard is the most widely used certificate format (used in HTTPS/TLS). Key fields:</p>
+        <table>
+            <tr><th>Field</th><th>Contents</th></tr>
+            <tr><td><strong>Version</strong></td><td>Certificate format version (usually v3)</td></tr>
+            <tr><td><strong>Serial Number</strong></td><td>Unique number per certificate issued by this CA</td></tr>
+            <tr><td><strong>Subject</strong></td><td>Identity of the certificate owner (name, organization, domain)</td></tr>
+            <tr><td><strong>Subject's Public Key</strong></td><td>The actual public key being certified (DH, RSA, ECDSA key)</td></tr>
+            <tr><td><strong>Issuer (CA)</strong></td><td>Name of the Certificate Authority that signed this</td></tr>
+            <tr><td><strong>Validity Period</strong></td><td>Not Before / Not After dates</td></tr>
+            <tr><td><strong>Signature Algorithm</strong></td><td>Algorithm used by CA to sign (e.g., SHA256withRSA)</td></tr>
+            <tr><td><strong>CA's Signature</strong></td><td>Digital signature over all other fields (after hashing). This is what binds everything together.</td></tr>
+        </table>
+
+        <div class="warning-box">
+            <strong>⚠️ Two Public-Key Schemes in Every Certificate:</strong>
+            <ol style="margin:0.5rem 0 0;">
+                <li>The <strong>subject's public key</strong> — what is being protected (e.g., the DH key \( A = \alpha^a \bmod p \))</li>
+                <li>The <strong>CA's signature algorithm</strong> — the separate scheme used to sign the certificate data itself (e.g., RSA or ECDSA)</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- =================== 7. CHAIN OF TRUST =================== -->
+    <div class="card">
+        <h2>7. Chain of Trust & Certificate Revocation</h2>
+
+        <h3>Chain of Trust (Cross-Certification)</h3>
+        <p>In large systems, users may hold certificates from different CAs. This is handled by <strong>cross-certification</strong>:</p>
+        <ul>
+            <li>CA1 certifies the public key of CA2 — if Alice trusts CA1, she also trusts CA2 (trust is <em>delegated</em>).</li>
+            <li>This forms a <strong>hierarchy</strong>: Root CAs → Intermediate CAs → End-user certificates.</li>
+            <li>Web browsers ship with Root CA public keys pre-installed as <em>trust anchors</em>.</li>
+        </ul>
+
+        <h3>Certificate Revocation Lists (CRLs)</h3>
+        <p>Certificates must sometimes be <strong>revoked</strong> before their expiry date — e.g., if a smart card is lost, a private key is compromised, or a user leaves an organization.</p>
+        <ul>
+            <li>CAs publish <strong>Certificate Revocation Lists (CRLs)</strong> periodically (e.g., daily).</li>
+            <li>Any party verifying a certificate should check against the current CRL.</li>
+            <li>CRL distribution places a <em>bandwidth burden</em> on the PKI system.</li>
+            <li>Modern alternative: <strong>OCSP</strong> (Online Certificate Status Protocol) — on-demand real-time revocation checking.</li>
+        </ul>
+
+        <div class="tip-box">
+            <strong>💡 Remaining PKI Challenges:</strong> Even with certificates and CRLs, distributing CA public keys securely, managing cross-certifications, and handling revocation at scale remain active engineering problems in real-world systems.
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>CSE 4783 Cryptography Study Guide | Module 6: Key Establishment (DHKE with Certificates)</p>
+</footer>
 
 </body>
 </html>

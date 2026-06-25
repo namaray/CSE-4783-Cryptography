@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>5. Steganography | CSE 4783</title>
-    <meta name="description" content="Study notes on Steganography for CSE 4783 Cryptography - hiding messages in plain sight.">
+    <meta name="description" content="Study notes on Steganography — Prediction Error Histogram method, pixel prediction, and embedding — for CSE 4783.">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
@@ -24,246 +24,391 @@
             --warning-border: #f59e0b;
             --tip-bg: #d1fae5;
             --tip-border: #059669;
+            --danger-bg: #fee2e2;
+            --danger-border: #dc2626;
+            --info-bg: #eff6ff;
+            --info-border: #3b82f6;
         }
         * { box-sizing: border-box; }
-        body {
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            margin: 0; padding: 0;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.7;
-        }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); line-height: 1.7; }
         header {
             background: linear-gradient(135deg, var(--primary) 0%, #2d1b69 100%);
-            color: white;
-            padding: 2.5rem 1rem;
-            text-align: center;
-            border-bottom: 4px solid var(--accent);
-            position: relative;
-            overflow: hidden;
+            color: white; padding: 2.5rem 1rem; text-align: center;
+            border-bottom: 4px solid var(--accent); position: relative; overflow: hidden;
         }
         header::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(ellipse at center, rgba(124,58,237,0.15) 0%, transparent 70%);
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at center top, rgba(124,58,237,0.2) 0%, transparent 70%);
         }
         header h1 { margin: 0; font-size: 2.2rem; font-weight: 700; position: relative; }
-        header p { color: var(--accent-light); margin: 0.5rem 0 0; font-size: 1rem; position: relative; }
-        .nav-link {
-            display: inline-block; margin-top: 1rem;
-            color: rgba(255,255,255,0.7); text-decoration: none;
-            font-weight: 500; font-size: 0.9rem; position: relative;
-            transition: color 0.2s;
-        }
+        header p { color: var(--accent-light); margin: 0.5rem 0 0; position: relative; }
+        .nav-link { display: inline-block; margin-top: 1rem; color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; font-size: 0.9rem; position: relative; }
         .nav-link:hover { color: white; }
-        .container { max-width: 920px; margin: 2.5rem auto; padding: 0 1.5rem; }
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-            border: 1px solid var(--border);
-            transition: box-shadow 0.2s;
-        }
+        .container { max-width: 940px; margin: 2.5rem auto; padding: 0 1.5rem; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 16px rgba(0,0,0,0.06); border: 1px solid var(--border); transition: box-shadow 0.2s; }
         .card:hover { box-shadow: 0 4px 24px rgba(124,58,237,0.1); }
-        h2 {
-            color: var(--primary); font-size: 1.4rem; font-weight: 700;
-            border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem;
-            margin-top: 0;
-        }
+        h2 { color: var(--primary); font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-top: 0; }
         h3 { color: var(--accent); margin-top: 1.5rem; font-size: 1.1rem; font-weight: 600; }
-        .formula-box {
-            background: var(--formula-bg);
-            border-left: 4px solid var(--formula-border);
-            padding: 1rem 1.2rem;
-            margin: 1rem 0;
-            border-radius: 0 8px 8px 0;
-            font-size: 1.05rem;
-        }
-        .tip-box {
-            background: var(--tip-bg);
-            border-left: 4px solid var(--tip-border);
-            padding: 0.8rem 1.2rem;
-            margin: 1rem 0;
-            border-radius: 0 8px 8px 0;
-        }
-        .warning-box {
-            background: var(--warning-bg);
-            border-left: 4px solid var(--warning-border);
-            padding: 0.8rem 1.2rem;
-            margin: 1rem 0;
-            border-radius: 0 8px 8px 0;
-        }
+        .formula-box { background: var(--formula-bg); border-left: 4px solid var(--formula-border); padding: 1rem 1.4rem; margin: 1rem 0; border-radius: 0 8px 8px 0; font-size: 1.05rem; }
+        .tip-box { background: var(--tip-bg); border-left: 4px solid var(--tip-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        .warning-box { background: var(--warning-bg); border-left: 4px solid var(--warning-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        .danger-box { background: var(--danger-bg); border-left: 4px solid var(--danger-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        .info-box { background: var(--info-bg); border-left: 4px solid var(--info-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
         table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; }
         th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
         th { background: var(--primary); color: white; font-weight: 600; }
         tr:nth-child(even) td { background: #f8f7ff; }
         ul, ol { padding-left: 1.5rem; }
         li { margin-bottom: 0.4rem; }
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.2rem;
-            margin: 1.2rem 0;
+
+        /* Pixel grid visualizer */
+        .pixel-grid {
+            display: inline-grid;
+            grid-template-columns: repeat(3, 56px);
+            gap: 3px;
+            margin: 1rem auto;
+            display: flex; flex-direction: column; align-items: flex-start;
         }
-        .compare-card {
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 1.2rem;
+        .pixel-grid-wrap { display: flex; gap: 2.5rem; flex-wrap: wrap; margin: 1.2rem 0; align-items: flex-start; }
+        .grid-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); text-align: center; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .g3 { display: grid; grid-template-columns: repeat(3, 52px); gap: 3px; }
+        .gcell {
+            width: 52px; height: 52px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 6px; font-size: 0.78rem; font-weight: 600;
+            border: 1.5px solid var(--border);
         }
-        .compare-card h4 { margin: 0 0 0.8rem; color: var(--accent); font-size: 1rem; }
-        .badge {
-            display: inline-block;
-            background: var(--accent);
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 2px 10px;
-            border-radius: 20px;
-            margin-left: 0.5rem;
-            vertical-align: middle;
+        .gcell.normal { background: #f5f3ff; color: var(--text); }
+        .gcell.centre { background: #7c3aed; color: white; border-color: #5b21b6; }
+        .gcell.satellite { background: #ddd6fe; color: var(--primary); border-color: #a78bfa; }
+        .gcell.corner { background: #f3f4f6; color: #9ca3af; border-color: #e5e7eb; }
+
+        /* Steps */
+        .steps { counter-reset: step; padding-left: 0; list-style: none; }
+        .steps li {
+            position: relative; padding: 0.8rem 0.8rem 0.8rem 3.2rem;
+            margin-bottom: 0.7rem; background: #faf5ff;
+            border-radius: 8px; border: 1px solid #ede9fe;
         }
+        .steps li::before {
+            counter-increment: step; content: counter(step);
+            position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%);
+            background: var(--accent); color: white;
+            width: 1.7rem; height: 1.7rem; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.82rem; font-weight: 700;
+        }
+
+        /* Histogram bar chart */
+        .hist-wrap { display: flex; align-items: flex-end; gap: 4px; height: 100px; margin: 1rem 0; padding: 0.5rem; background: #faf5ff; border-radius: 8px; border: 1px solid #ede9fe; }
+        .bar { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .bar-body { width: 28px; border-radius: 3px 3px 0 0; transition: height 0.3s; }
+        .bar-lbl { font-size: 0.62rem; color: var(--muted); }
+        .bar.peak .bar-body { background: var(--accent); }
+        .bar.shift .bar-body { background: #10b981; }
+        .bar.normal .bar-body { background: #c4b5fd; }
+        .bar.embed .bar-body { background: #0ea5e9; }
+
         footer { text-align: center; padding: 2rem; background: var(--primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
-        @media (max-width: 600px) { .comparison-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Module 5: Steganography</h1>
-        <p>Hiding the existence of a secret message</p>
-        <a href="../index.html" class="nav-link">← Back to Home</a>
-    </header>
+<header>
+    <h1>Module 5: Steganography</h1>
+    <p>Prediction Error Histogram Method — hiding data inside image error space</p>
+    <a href="../index.html" class="nav-link">← Back to Home</a>
+</header>
 
-    <div class="container">
+<div class="container">
 
-        <div class="card">
-            <h2>1. Steganography vs. Cryptography</h2>
-            <p>While <strong>Cryptography</strong> scrambles a message so it cannot be <em>read</em>, <strong>Steganography</strong> hides the message so it cannot even be <em>detected</em>. Both are part of the broader field of information hiding.</p>
-            <div class="comparison-grid">
-                <div class="compare-card">
-                    <h4>🔐 Cryptography</h4>
-                    <ul>
-                        <li>Hides the <strong>content</strong> of a message</li>
-                        <li>The existence of communication is visible</li>
-                        <li>Adversary knows something is hidden but can't read it</li>
-                        <li>Example: Encrypted email traffic</li>
-                    </ul>
-                </div>
-                <div class="compare-card">
-                    <h4>🕵️ Steganography</h4>
-                    <ul>
-                        <li>Hides the <strong>existence</strong> of the message</li>
-                        <li>The cover medium looks completely innocent</li>
-                        <li>Adversary does not suspect any communication</li>
-                        <li>Example: Hidden text in an image file</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="tip-box">
-                <strong>💡 Key Insight:</strong> Steganography and Cryptography can be combined — first encrypt the secret message, then hide the ciphertext using steganography. This provides both secrecy and concealment.
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>2. Core Components</h2>
-            <ul>
-                <li><strong>Cover Medium (C):</strong> The innocent carrier that hides the secret. Can be an image, audio file, video, or text document.</li>
-                <li><strong>Secret Message (M):</strong> The hidden data to be concealed.</li>
-                <li><strong>Stego-Key (K):</strong> An optional key used to embed/extract the message, adding another layer of security.</li>
-                <li><strong>Stego-Object (S):</strong> The cover medium after the secret message has been embedded. It should be perceptually identical to the original cover.</li>
-            </ul>
-            <div class="formula-box">
-                Embedding: \( S = \text{Embed}(C, M, K) \) <br>
-                Extraction: \( M = \text{Extract}(S, K) \)
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>3. Image Steganography: LSB Technique</h2>
-            <p>The most common digital steganography technique. Each pixel in an image has color values (e.g., RGB). Each value is stored as an 8-bit number. The <strong>Least Significant Bit (LSB)</strong> of each byte contributes the smallest change in color — a change that is imperceptible to the human eye.</p>
-
-            <h3>How LSB Works</h3>
-            <p>By replacing the LSB of each pixel's color value with a bit of the secret message, we can hide data with minimal visual distortion.</p>
-
-            <table>
-                <tr><th>Original Pixel (R, G, B)</th><th>Binary Representation</th><th>After Embedding bit '1'</th></tr>
-                <tr><td>R = 200</td><td>1100 100<strong>0</strong></td><td>1100 100<strong>1</strong> = 201</td></tr>
-                <tr><td>G = 130</td><td>1000 001<strong>0</strong></td><td>1000 001<strong>1</strong> = 131</td></tr>
-                <tr><td>B = 75</td><td>0100 101<strong>1</strong></td><td>0100 101<strong>1</strong> = 75 (no change)</td></tr>
-            </table>
-            <p>A maximum color change of 1 out of 255 is visually undetectable.</p>
-
-            <h3>Storage Capacity</h3>
-            <div class="formula-box">
-                For a 24-bit (RGB) image of size \( W \times H \) pixels with 1 bit per channel: <br>
-                Max hidden data = \( W \times H \times 3 \) bits = \( \frac{W \times H \times 3}{8} \) bytes
-            </div>
-            <div class="warning-box">
-                <strong>⚠️ Trade-off:</strong> Using more bits per pixel (e.g., 4 LSBs) increases capacity but also increases visual distortion, making detection easier.
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>4. Other Steganography Techniques</h2>
-
-            <h3>Text Steganography</h3>
-            <ul>
-                <li><strong>Whitespace Manipulation:</strong> Extra spaces or tabs are added at the end of lines to encode bits.</li>
-                <li><strong>Line Shifting:</strong> Text lines are shifted vertically by small amounts.</li>
-                <li><strong>Word Shifting:</strong> Words are shifted horizontally.</li>
-                <li><strong>Syntactic Methods:</strong> Using synonyms or changing punctuation to encode data.</li>
-            </ul>
-
-            <h3>Audio Steganography</h3>
-            <ul>
-                <li><strong>LSB Coding:</strong> Same concept as image LSB applied to audio sample bytes.</li>
-                <li><strong>Echo Hiding:</strong> Embeds information by adding an echo signal to the audio. The echo's delay, amplitude, and initial value represent data.</li>
-                <li><strong>Phase Coding:</strong> Alters the phase components of audio segments to encode data.</li>
-            </ul>
-
-            <h3>Network / Protocol Steganography</h3>
-            <ul>
-                <li>Hiding data in unused header fields of network packets (e.g., IP, TCP, HTTP headers).</li>
-                <li>Manipulating inter-packet timing to encode information.</li>
-            </ul>
-        </div>
-
-        <div class="card">
-            <h2>5. Steganalysis (Detection)</h2>
-            <p>Just as cryptanalysis attempts to break ciphers, <strong>Steganalysis</strong> attempts to detect or decode hidden messages. The goal is to distinguish between clean cover media and stego-objects.</p>
-            <ul>
-                <li><strong>Statistical Analysis:</strong> LSB steganography slightly alters the statistical distribution of pixel values. Tools can detect this deviation from the expected distribution of a natural image.</li>
-                <li><strong>Visual Attack:</strong> Extracting and visualizing the LSBs of an image. Hidden data appears as random noise, while natural image LSBs show structure.</li>
-                <li><strong>Chi-Square Attack:</strong> Compares the expected frequency distribution of pixel pairs in a cover image versus a stego-image.</li>
-            </ul>
-            <div class="tip-box">
-                <strong>💡 Countermeasure:</strong> Spread the hidden data randomly throughout the image (using a pseudo-random number generator seeded with a key) rather than sequentially to resist statistical attacks.
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>6. Key Properties of a Good Steganographic System</h2>
-            <table>
-                <tr><th>Property</th><th>Description</th></tr>
-                <tr><td><strong>Imperceptibility</strong></td><td>The stego-object must be indistinguishable from the cover to the human senses.</td></tr>
-                <tr><td><strong>Capacity</strong></td><td>The amount of data that can be hidden without causing perceptible distortion.</td></tr>
-                <tr><td><strong>Robustness</strong></td><td>The hidden data should survive common signal processing operations (compression, cropping).</td></tr>
-                <tr><td><strong>Security</strong></td><td>A steganalyst should not be able to prove that a stego-object contains hidden data.</td></tr>
-            </table>
-            <div class="warning-box">
-                <strong>⚠️ The Steganography Triangle:</strong> Imperceptibility, Capacity, and Robustness cannot all be maximized simultaneously. Increasing one property generally degrades another.
-            </div>
-        </div>
-
+    <!-- =================== 1. WHAT IS STEGANOGRAPHY =================== -->
+    <div class="card">
+        <h2>1. What is Steganography?</h2>
+        <p>Steganography hides the <strong>existence</strong> of a secret message, unlike encryption which hides only its <em>content</em>. The goal is that even a suspicious observer cannot detect that any message has been hidden.</p>
+        <table>
+            <tr><th>Feature</th><th>Encryption</th><th>Steganography</th></tr>
+            <tr><td>Hides</td><td>The <strong>content</strong> of a message</td><td>The <strong>existence</strong> of a message</td></tr>
+            <tr><td>Detectable?</td><td>Yes — encrypted data is visible</td><td>No — cover medium looks innocent</td></tr>
+            <tr><td>If key is found</td><td>Message is fully exposed</td><td>Still needs stego key to extract</td></tr>
+        </table>
+        <h3>Key Terminology</h3>
+        <ul>
+            <li><strong>Cover Image (I):</strong> The original, unmodified carrier image.</li>
+            <li><strong>Stego Image (S):</strong> The image after the secret message is embedded. Must look visually identical to I.</li>
+            <li><strong>Payload:</strong> The total number of bits embedded in the image.</li>
+            <li><strong>Embedding Capacity (bpp):</strong> Bits Per Pixel — how many bits can be hidden per pixel on average.</li>
+        </ul>
     </div>
 
-    <footer>
-        <p>CSE 4783 Cryptography Study Guide | Module 5: Steganography</p>
-    </footer>
+    <!-- =================== 2. DOMAINS =================== -->
+    <div class="card">
+        <h2>2. Domains of Image Steganography</h2>
+        <p>Embedding can happen in three different domains:</p>
+        <table>
+            <tr><th>Domain</th><th>What is Modified</th><th>Example Technique</th></tr>
+            <tr><td><strong>Image Domain</strong></td><td>Raw pixel values directly</td><td>LSB Replacement</td></tr>
+            <tr><td><strong>Transform Domain</strong></td><td>FFT / Wavelet / DCT coefficients</td><td>JPEG steganography</td></tr>
+            <tr><td><strong>Prediction Errors</strong></td><td>Errors between predicted and actual pixel values — the histogram of these errors is shifted to embed data</td><td><strong>Prediction Error Histogram (PEH) — the main focus</strong></td></tr>
+        </table>
+        <div class="tip-box">
+            <strong>💡 Why Prediction Errors?</strong> Natural images are smooth — neighbouring pixels are highly correlated. A predictor can estimate each pixel very accurately, leaving only small errors. These small, concentrated errors form a sharp histogram that is ideal for reversible steganography.
+        </div>
+    </div>
+
+    <!-- =================== 3. PERFORMANCE MEASURES =================== -->
+    <div class="card">
+        <h2>3. Performance Measuring Parameters</h2>
+        <p>Two metrics measure the quality of the embedding. Cover image is \( I \), stego image is \( S \), dimensions \( w \times h \).</p>
+        <h3>Volume of Embedded Bits</h3>
+        <div class="formula-box">
+            \( \text{Payload} = \text{Total embedded bits} \) <br><br>
+            \( \text{Embedding Capacity (bpp)} = \dfrac{\text{Payload}}{w \times h} \)
+        </div>
+        <h3>Stego Image Quality</h3>
+        <div class="formula-box">
+            \( \text{MSE} = \dfrac{\displaystyle\sum_{i}\sum_{j}(I_{i,j} - S_{i,j})^2}{w \times h} \) <br><br>
+            \( \text{PSNR} = 10\log_{10}\!\left(\dfrac{255^2}{\text{MSE}}\right) \text{ dB} \)
+        </div>
+        <div class="info-box">
+            <strong>📌 Interpretation:</strong> Higher PSNR = better quality (less distortion). A PSNR above 40 dB is typically considered visually lossless. Lower MSE is better.
+        </div>
+    </div>
+
+    <!-- =================== 4. CLASSIFICATION =================== -->
+    <div class="card">
+        <h2>4. Steganography Classification</h2>
+        <p>Classified by whether the <strong>original cover image can be recovered</strong> after message extraction:</p>
+        <table>
+            <tr><th>Type</th><th>Cover Recoverable?</th><th>Techniques</th></tr>
+            <tr><td><strong>Irreversible (Lossy)</strong></td><td>❌ No — permanently altered</td><td>LSB Replacement (basic)</td></tr>
+            <tr><td><strong>Reversible (Lossless)</strong></td><td>✅ Yes — original can be perfectly restored after extraction</td><td>Basic Pixel Reference Error, <strong>Prediction Error Histogram</strong></td></tr>
+        </table>
+        <div class="tip-box">
+            <strong>💡 Why Reversible?</strong> Critical for medical imaging, military, or legal documents where the original image must be perfectly preserved after the hidden message is read.
+        </div>
+    </div>
+
+    <!-- =================== 5. PIXEL PREDICTION =================== -->
+    <div class="card">
+        <h2>5. Pixel Prediction</h2>
+        <p>Before computing errors, a <strong>predictor</strong> estimates each pixel's value from its neighbours. Two approaches from the slides:</p>
+
+        <h3>Method 1: Single Pixel Prediction (Sachnev et al., 2009)</h3>
+        <p>Each pixel \( I_i \) is predicted as a <strong>weighted average of its 4 neighbours</strong> (Top, Right, Bottom, Left):</p>
+        <div class="formula-box">
+            \( P_i = \sum_{j \in \{\text{Top, Right, Bottom, Left}\}} w_j \cdot I_j \)
+        </div>
+
+        <div class="pixel-grid-wrap">
+            <div>
+                <div class="grid-label">Neighbour Layout</div>
+                <div class="g3">
+                    <div class="gcell corner">–</div>
+                    <div class="gcell satellite">Top</div>
+                    <div class="gcell corner">–</div>
+                    <div class="gcell satellite">Left</div>
+                    <div class="gcell centre">I<sub>i</sub></div>
+                    <div class="gcell satellite">Right</div>
+                    <div class="gcell corner">–</div>
+                    <div class="gcell satellite">Bottom</div>
+                    <div class="gcell corner">–</div>
+                </div>
+            </div>
+        </div>
+        <p>Weights \( w_j \) are chosen to minimise prediction error for the image type (e.g., \( w = 0.25 \) for each neighbour gives a simple average).</p>
+
+        <h3>Method 2: Block Pixel Prediction (Hong W. et al., 2010)</h3>
+        <p>Pixels are predicted from a <strong>centre pixel</strong> \( C_i \) and surrounding <strong>satellite pixels</strong> \( p_{i,1} \ldots p_{i,8} \) within a block:</p>
+        <div class="pixel-grid-wrap">
+            <div>
+                <div class="grid-label">Block Layout (3×3)</div>
+                <div class="g3">
+                    <div class="gcell satellite">p<sub>i,1</sub></div>
+                    <div class="gcell satellite">p<sub>i,2</sub></div>
+                    <div class="gcell satellite">p<sub>i,3</sub></div>
+                    <div class="gcell satellite">p<sub>i,8</sub></div>
+                    <div class="gcell centre">C<sub>i</sub></div>
+                    <div class="gcell satellite">p<sub>i,4</sub></div>
+                    <div class="gcell satellite">p<sub>i,7</sub></div>
+                    <div class="gcell satellite">p<sub>i,6</sub></div>
+                    <div class="gcell satellite">p<sub>i,5</sub></div>
+                </div>
+            </div>
+        </div>
+        <p>Each satellite pixel \( p_{i,j} \) is predicted from the centre pixel \( C_i \). The image is divided into non-overlapping blocks first.</p>
+    </div>
+
+    <!-- =================== 6. PREDICTION ERROR =================== -->
+    <div class="card">
+        <h2>6. Prediction Error Calculation</h2>
+        <p>Once predicted values \( P_{i,j} \) are computed, the <strong>Prediction Error</strong> \( E_{i,j} \) for each pixel is:</p>
+        <div class="formula-box">
+            \( E_{i,j} = I_{i,j} - P_{i,j} \)
+        </div>
+        <p>These errors form the <strong>embedding space</strong> — the secret message bits will be hidden inside the error values.</p>
+
+        <div class="pixel-grid-wrap">
+            <div>
+                <div class="grid-label">Image Pixels (I)</div>
+                <div class="g3">
+                    <div class="gcell normal">I<sub>1,1</sub></div><div class="gcell normal">I<sub>1,2</sub></div><div class="gcell normal">I<sub>1,3</sub></div>
+                    <div class="gcell normal">I<sub>2,1</sub></div><div class="gcell normal">I<sub>2,2</sub></div><div class="gcell normal">I<sub>2,3</sub></div>
+                    <div class="gcell normal">I<sub>3,1</sub></div><div class="gcell normal">I<sub>3,2</sub></div><div class="gcell normal">I<sub>3,3</sub></div>
+                </div>
+            </div>
+            <div style="font-size:1.8rem;color:var(--accent);align-self:center;">−</div>
+            <div>
+                <div class="grid-label">Predicted (P)</div>
+                <div class="g3">
+                    <div class="gcell satellite">P<sub>1,1</sub></div><div class="gcell satellite">P<sub>1,2</sub></div><div class="gcell satellite">P<sub>1,3</sub></div>
+                    <div class="gcell satellite">P<sub>2,1</sub></div><div class="gcell satellite">P<sub>2,2</sub></div><div class="gcell satellite">P<sub>2,3</sub></div>
+                    <div class="gcell satellite">P<sub>3,1</sub></div><div class="gcell satellite">P<sub>3,2</sub></div><div class="gcell satellite">P<sub>3,3</sub></div>
+                </div>
+            </div>
+            <div style="font-size:1.8rem;color:var(--accent);align-self:center;">=</div>
+            <div>
+                <div class="grid-label">Errors (E)</div>
+                <div class="g3">
+                    <div class="gcell centre">E<sub>1,1</sub></div><div class="gcell centre">E<sub>1,2</sub></div><div class="gcell centre">E<sub>1,3</sub></div>
+                    <div class="gcell centre">E<sub>2,1</sub></div><div class="gcell centre">E<sub>2,2</sub></div><div class="gcell centre">E<sub>2,3</sub></div>
+                    <div class="gcell centre">E<sub>3,1</sub></div><div class="gcell centre">E<sub>3,2</sub></div><div class="gcell centre">E<sub>3,3</sub></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <strong>📌 Key Property:</strong> For smooth natural images, most errors cluster tightly around 0 — the predictor is highly accurate. This creates a sharp, peaked histogram — ideal for the PEH method.
+        </div>
+    </div>
+
+    <!-- =================== 7. ERROR HISTOGRAM & PEAKS =================== -->
+    <div class="card">
+        <h2>7. The Error Histogram</h2>
+        <p>Plot the <strong>frequency of each error value</strong> across all pixels. Because the predictor is accurate, the histogram forms a sharp peak near zero.</p>
+
+        <h3>Key Histogram Values (Notation)</h3>
+        <table>
+            <tr><th>Symbol</th><th>Meaning</th></tr>
+            <tr><td>\( P_+ \)</td><td>The positive error value with the <strong>highest frequency</strong> (positive peak)</td></tr>
+            <tr><td>\( P_- \)</td><td>The negative error value with the <strong>highest frequency</strong> (negative peak)</td></tr>
+            <tr><td>\( Z_+ \)</td><td>The highest positive error value present in the histogram</td></tr>
+            <tr><td>\( Z_- \)</td><td>The highest negative error value (most negative) present</td></tr>
+            <tr><td>\( h_1 \)</td><td>Frequency count at \( P_- \)</td></tr>
+            <tr><td>\( h_2 \)</td><td>Frequency count at \( P_+ \)</td></tr>
+        </table>
+
+        <div class="tip-box">
+            <strong>💡 Embedding capacity ≈ \( h_1 + h_2 \)</strong> — we can embed one bit per pixel at each of the two peak positions.
+        </div>
+    </div>
+
+    <!-- =================== 8. EMBEDDING PROCESS =================== -->
+    <div class="card">
+        <h2>8. Embedding on the Error Histogram</h2>
+        <p>Three operations are applied to each error value \( r_{i,j} \) to embed a message bit \( b \in \{0,1\} \):</p>
+
+        <h3>Step 1 — Shift non-embeddable errors outward (make room)</h3>
+        <div class="formula-box">
+            If \( r_{i,j} > P_+ \): &nbsp;&nbsp; \( \tilde{r}_{i,j} = r_{i,j} + 1 \) <br>
+            If \( r_{i,j} < P_- \): &nbsp;&nbsp; \( \tilde{r}_{i,j} = r_{i,j} - 1 \)
+        </div>
+        <p>This frees up the slots just above \( P_+ \) and just below \( P_- \) for data embedding.</p>
+
+        <h3>Step 2 — Embed at the positive peak \( P_+ \)</h3>
+        <div class="formula-box">
+            If \( r_{i,j} = P_+ \): &nbsp;&nbsp; \( \tilde{r}_{i,j} = r_{i,j} + b \)
+            <br><br>
+            → If \( b = 0 \): error stays at \( P_+ \) (no change) <br>
+            → If \( b = 1 \): error moves to \( P_+ + 1 \)
+        </div>
+
+        <h3>Step 3 — Embed at the negative peak \( P_- \)</h3>
+        <div class="formula-box">
+            If \( r_{i,j} = P_- \): &nbsp;&nbsp; \( \tilde{r}_{i,j} = r_{i,j} - b \)
+            <br><br>
+            → If \( b = 0 \): error stays at \( P_- \) (no change) <br>
+            → If \( b = 1 \): error moves to \( P_- - 1 \)
+        </div>
+
+        <h3>Step 4 — Reconstruct the Stego Image</h3>
+        <div class="formula-box">
+            \( \tilde{b}_{i,j} = p_{i,j} + \tilde{e}_{i,j} \)
+        </div>
+        <p>Add the modified error back onto the predicted value to get the stego pixel value. Embedding is complete!</p>
+    </div>
+
+    <!-- =================== 9. EXTRACTION =================== -->
+    <div class="card">
+        <h2>9. Message Extraction at the Receiver</h2>
+        <p>The receiver recomputes the prediction \( \tilde{p}_{i,j} \) from the stego image (the centre/reference pixels are unchanged), then recovers the stego errors \( \tilde{e}_{i,j} = \tilde{b}_{i,j} - \tilde{p}_{i,j} \).</p>
+
+        <h3>Extract the bit \( s \)</h3>
+        <div class="formula-box">
+            \( s = 0 \) if \( \tilde{e}_{i,j} = P_+ \) &nbsp;or&nbsp; \( \tilde{e}_{i,j} = P_- \) <br><br>
+            \( s = 1 \) if \( \tilde{e}_{i,j} = P_+ + 1 \) &nbsp;or&nbsp; \( \tilde{e}_{i,j} = P_- - 1 \)
+        </div>
+
+        <h3>Reconstruct the original error (reversibility)</h3>
+        <div class="formula-box">
+            \( e_{i,j} = \tilde{e}_{i,j} - 1 \) &nbsp; if \( \tilde{e}_{i,j} > P_+ \) <br>
+            \( e_{i,j} = \tilde{e}_{i,j} + 1 \) &nbsp; if \( \tilde{e}_{i,j} < P_- \) <br>
+            \( e_{i,j} = \tilde{e}_{i,j} \) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; otherwise
+        </div>
+        <p>The original pixel is then recovered as \( I_{i,j} = P_{i,j} + e_{i,j} \). Extraction is done — the cover image is fully restored.</p>
+    </div>
+
+    <!-- =================== 10. IMAGE QUALITY & CAPACITY =================== -->
+    <div class="card">
+        <h2>10. Image Smoothness vs. Embedding Capacity</h2>
+        <table>
+            <tr><th>Image Type</th><th>Pixel Variation</th><th>Prediction Error Size</th><th>Histogram Peak Height</th><th>Embedding Capacity</th></tr>
+            <tr><td><strong>Smooth Image</strong></td><td>Minimum variation</td><td>Very small errors</td><td>Tall, sharp peaks → large \( h_1, h_2 \)</td><td>✅ High</td></tr>
+            <tr><td><strong>Regular Texture</strong></td><td>Moderate, periodic</td><td>Small errors</td><td>Moderate peaks</td><td>⚠️ Medium</td></tr>
+            <tr><td><strong>Natural / Busy Image</strong></td><td>Large random variation</td><td>Large errors — spread histogram</td><td>Low, flat peaks</td><td>❌ Low + visible distortion</td></tr>
+        </table>
+    </div>
+
+    <!-- =================== 11. CRITICS =================== -->
+    <div class="card">
+        <h2>11. Critics on the PEH Scheme</h2>
+        <div class="danger-box"><strong>Critic 1:</strong> Distortion of visual quality greatly depends on data bits. More '1' bits in the message means more pixels are shifted — more distortion.</div>
+        <div class="danger-box"><strong>Critic 2:</strong> The strategy cannot embed to all pixels. A <em>variance control mechanism</em> skips blocks with large variance (less smooth blocks), which reduces payload.</div>
+        <div class="danger-box"><strong>Critic 3:</strong> PEH selects two highest peaks — one positive \( P_+ \), one negative \( P_- \). But experiments show that at some images, <em>both highest peaks are on the positive side</em>, making the two-peak selection suboptimal.</div>
+        <div class="danger-box"><strong>Critic 4:</strong> Boundary blocks lack some satellite pixels — boundary blocks must be <em>avoided</em>, which reduces total capacity.</div>
+        <div class="danger-box"><strong>Critic 5:</strong> Embedding to only two peaks limits payload to less than <strong>20%</strong> of image data. Payload remains a fundamental limitation.</div>
+    </div>
+
+    <!-- =================== 12. MULTI-LAYER =================== -->
+    <div class="card">
+        <h2>12. Multi-Layer Embedding</h2>
+        <p>To increase capacity beyond what a single peak pair allows, <strong>Multi-Layer Embedding</strong> repeats the process across multiple error layers.</p>
+        <ul>
+            <li><strong>Layer 0:</strong> Embed into errors at the two primary peaks (standard PEH).</li>
+            <li><strong>Layer 1:</strong> Embed into errors at positions ±1 from the primary peaks.</li>
+            <li><strong>Layer 2, 3…:</strong> Continue expanding the embeddable range outward.</li>
+        </ul>
+
+        <h3>Embedding Layer \( L \) — Bit Mapping</h3>
+        <div class="formula-box">
+            When error \( e \geq 0 \): <br>
+            &nbsp;&nbsp; If \( b = 0 \): \( \tilde{e} = 2e \) <br>
+            &nbsp;&nbsp; If \( b = 1 \): \( \tilde{e} = 2e + 1 \) <br><br>
+            When error \( e < 0 \): <br>
+            &nbsp;&nbsp; If \( b = 0 \): \( \tilde{e} = 2e + 1 \) <br>
+            &nbsp;&nbsp; If \( b = 1 \): \( \tilde{e} = 2e \)
+        </div>
+        <p>Non-embeddable errors (outside layer \( L \)) are shifted by \( L \) places outward. This significantly increases payload at the cost of slightly greater distortion per embedded bit.</p>
+        <div class="tip-box">
+            <strong>💡 Trade-off:</strong> More layers = higher capacity but also higher distortion (lower PSNR). Optimum layer count is chosen based on the required payload and acceptable PSNR.
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>CSE 4783 Cryptography Study Guide | Module 5: Steganography (Prediction Error Histogram Method)</p>
+</footer>
 
 </body>
 </html>
