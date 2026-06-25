@@ -77,49 +77,54 @@
 
     <header>
         <h1>Module 9: ZKP, Schnorr & DKG</h1>
-        <p>Zero-Knowledge Proofs · Schnorr's Identification Protocol · Distributed Key Generation</p>
-        <a href="../index.html" class="nav-link">← Back to Home</a>
+        <p>Zero-Knowledge Proofs Â· Schnorr's Identification Protocol Â· Distributed Key Generation</p>
+        <a href="../index.html" class="nav-link">â† Back to Home</a>
     </header>
 
     <div class="container">
 
         <!-- ==================== PART 1: ZKP ==================== -->
         <div class="card">
-            <h2>Part I — Zero-Knowledge Proofs (ZKP)</h2>
+            <h2>Part I â€” Zero-Knowledge Proofs (ZKP)</h2>
             <p>A <strong>Zero-Knowledge Proof</strong> is a cryptographic protocol where one party (the <strong>Prover P</strong>) can convince another party (the <strong>Verifier V</strong>) that they know a secret, <em>without revealing anything about the secret itself</em>.</p>
 
             <div class="tip-box">
-                <strong>💡 The Core Idea:</strong> "I can prove to you I know the password to this locked door, without ever showing you the password or unlocking the door in front of you."
+                <strong>ðŸ’¡ The Core Idea:</strong> "I can prove to you I know the password to this locked door, without ever showing you the password or unlocking the door in front of you."
             </div>
 
             <h3>Ali Baba Cave Analogy</h3>
             <p>Imagine a circular cave with a secret door inside that requires a password to open. Paths split into left and right. The Prover (P) knows the password:</p>
             <ol>
                 <li>The Verifier waits at the cave entrance. The Prover enters and goes either left or right (Verifier doesn't see which).</li>
-                <li>The Verifier calls out a random direction — "Come out from the <strong>left</strong>!" or "Come out from the <strong>right</strong>!"</li>
+                <li>The Verifier calls out a random direction â€” "Come out from the <strong>left</strong>!" or "Come out from the <strong>right</strong>!"</li>
                 <li>If the Prover knows the password, they can always come out from the demanded side. If they don't know the password, they can only succeed 50% of the time (by luck).</li>
                 <li>Repeating this \( n \) times, the probability of a cheating prover succeeding is \( (1/2)^n \). For \( n = 100 \) rounds, this probability is \( 2^{-100} \), effectively zero.</li>
             </ol>
             <div class="formula-box">
                 Probability of cheating prover succeeding \( n \) rounds: \( \left(\frac{1}{2}\right)^n \xrightarrow{n \to \infty} 0 \)
             </div>
+
+            <div style="margin: 1.2rem 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border);">
+                <img src="ZKP.jpg" alt="Handwritten ZKP notes" style="width:100%; display:block; opacity:0.9;">
+                <p style="background:#f5f3ff; margin:0; padding:0.5rem 1rem; font-size:0.78rem; color:#6b7280;">📝 Original handwritten notes</p>
+            </div>
         </div>
 
         <div class="card">
-            <h2>ZKP — Three Essential Properties</h2>
+            <h2>ZKP â€” Three Essential Properties</h2>
             <div class="zkp-props">
                 <div class="zkp-prop">
-                    <div class="icon">✅</div>
+                    <div class="icon">âœ…</div>
                     <h4>Completeness</h4>
                     <p>If the statement is <strong>true</strong>, an honest verifier will always be convinced by an honest prover.</p>
                 </div>
                 <div class="zkp-prop">
-                    <div class="icon">🔒</div>
+                    <div class="icon">ðŸ”’</div>
                     <h4>Soundness</h4>
                     <p>If the statement is <strong>false</strong>, no cheating prover can convince the honest verifier that it is true (except with negligible probability).</p>
                 </div>
                 <div class="zkp-prop">
-                    <div class="icon">🕵️</div>
+                    <div class="icon">ðŸ•µï¸</div>
                     <h4>Zero-Knowledge</h4>
                     <p>If the statement is true, the verifier learns <strong>nothing</strong> other than the fact that the statement is true. No information about the secret is revealed.</p>
                 </div>
@@ -128,13 +133,13 @@
 
         <!-- ==================== PART 2: SCHNORR ==================== -->
         <div class="card">
-            <h2>Part II — Schnorr's Identification Protocol</h2>
+            <h2>Part II â€” Schnorr's Identification Protocol</h2>
             <p>Claus-Peter Schnorr's protocol is a practical, efficient <strong>interactive ZKP</strong>. It allows Alice (Prover) to prove to Bob (Verifier) that she knows a private key \( x \), without revealing \( x \). It is based on the <strong>Discrete Logarithm Problem</strong>.</p>
 
             <h3>Setup & Keys</h3>
             <div class="two-col">
                 <div class="party-box alice">
-                    <h4>🔵 Alice (Prover)</h4>
+                    <h4>ðŸ”µ Alice (Prover)</h4>
                     <ul>
                         <li>Public prime generator: \( G \)</li>
                         <li>Private key: \( x \) (secret)</li>
@@ -142,7 +147,7 @@
                     </ul>
                 </div>
                 <div class="party-box bob">
-                    <h4>🔴 Bob (Verifier)</h4>
+                    <h4>ðŸ”´ Bob (Verifier)</h4>
                     <ul>
                         <li>Knows the prime generator \( G \)</li>
                         <li>Knows Alice's public key \( P \)</li>
@@ -163,24 +168,24 @@
             <h3>Mathematical Proof of Correctness</h3>
             <div class="formula-box">
                 Bob checks: \( s \cdot G \stackrel{?}{=} (c \cdot x + r) \cdot G \) <br><br>
-                Expanding: \( s \cdot G = c \cdot (x \cdot G) + r \cdot G = c \cdot P + R \) ✓
+                Expanding: \( s \cdot G = c \cdot (x \cdot G) + r \cdot G = c \cdot P + R \) âœ“
             </div>
 
             <div style="margin: 1.2rem 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border);">
                 <img src="Schnorr's Identification Protocol.jpg" alt="Schnorr's Identification Protocol handwritten notes" style="width:100%; display:block; opacity:0.9;">
-                <p style="background:#f0f9ff; margin:0; padding:0.5rem 1rem; font-size:0.78rem; color:#6b7280;">📝 Original handwritten notes</p>
+                <p style="background:#f0f9ff; margin:0; padding:0.5rem 1rem; font-size:0.78rem; color:#6b7280;">ðŸ“ Original handwritten notes</p>
             </div>
             <div class="success-box">
-                <strong>✅ Why it's Zero-Knowledge:</strong> Bob learns \( R = r \cdot G \) and \( s = c \cdot x + r \). To find \( x \), Bob would need to compute \( r = s - c \cdot x \), but he doesn't know \( x \). The Discrete Log Problem prevents deriving \( r \) from \( R \). Alice's secret \( x \) is perfectly protected.
+                <strong>âœ… Why it's Zero-Knowledge:</strong> Bob learns \( R = r \cdot G \) and \( s = c \cdot x + r \). To find \( x \), Bob would need to compute \( r = s - c \cdot x \), but he doesn't know \( x \). The Discrete Log Problem prevents deriving \( r \) from \( R \). Alice's secret \( x \) is perfectly protected.
             </div>
             <div class="warning-box">
-                <strong>⚠️ Nonce reuse attack:</strong> If Alice reuses the same nonce \( r \) for two different challenges \( c_1 \) and \( c_2 \), Bob gets two responses: \( s_1 = c_1 x + r \) and \( s_2 = c_2 x + r \). Subtracting gives \( s_1 - s_2 = (c_1 - c_2)x \), revealing \( x = \frac{s_1 - s_2}{c_1 - c_2} \). The nonce must ALWAYS be freshly random!
+                <strong>âš ï¸ Nonce reuse attack:</strong> If Alice reuses the same nonce \( r \) for two different challenges \( c_1 \) and \( c_2 \), Bob gets two responses: \( s_1 = c_1 x + r \) and \( s_2 = c_2 x + r \). Subtracting gives \( s_1 - s_2 = (c_1 - c_2)x \), revealing \( x = \frac{s_1 - s_2}{c_1 - c_2} \). The nonce must ALWAYS be freshly random!
             </div>
         </div>
 
         <!-- ==================== PART 3: DKG ==================== -->
         <div class="card">
-            <h2>Part III — Distributed Key Generation (DKG)</h2>
+            <h2>Part III â€” Distributed Key Generation (DKG)</h2>
             <p>DKG is a protocol that allows multiple parties to <strong>jointly generate a shared secret key</strong> such that no single party knows the full key. It extends <strong>Secret Sharing</strong> schemes (like Shamir's Secret Sharing) to the distributed setting.</p>
 
             <h3>The Problem it Solves</h3>
@@ -221,11 +226,11 @@
             </div>
 
             <div style="margin: 1.2rem 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border);">
-                <img src="ZKP.jpg" alt="Handwritten ZKP notes" style="width:100%; display:block; opacity:0.9;">
-                <p style="background:#f5f3ff; margin:0; padding:0.5rem 1rem; font-size:0.78rem; color:#6b7280;">📝 Original handwritten notes</p>
+                <img src="Distributed Key Generation.jpg" alt="Handwritten DKG notes" style="width:100%; display:block; opacity:0.9;">
+                <p style="background:#faf5ff; margin:0; padding:0.5rem 1rem; font-size:0.78rem; color:#6b7280;">📝 Original handwritten notes</p>
             </div>
             <div class="tip-box">
-                <strong>💡 DKG in Distributed Systems:</strong> In a full DKG protocol (e.g., Pedersen DKG), each party contributes a random polynomial. The shared secret is the sum of all parties' constant terms (secrets), but no party needs to reveal their individual secret to compute this sum.
+                <strong>ðŸ’¡ DKG in Distributed Systems:</strong> In a full DKG protocol (e.g., Pedersen DKG), each party contributes a random polynomial. The shared secret is the sum of all parties' constant terms (secrets), but no party needs to reveal their individual secret to compute this sum.
             </div>
         </div>
 
