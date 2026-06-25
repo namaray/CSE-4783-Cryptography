@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shor's Factorization Algorithm | CSE 4783</title>
+    <meta name="description" content="Study notes on Shor's Factorization Algorithm and its impact on modern cryptography.">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root {
+            --primary: #1a1a2e;
+            --accent: #8b5cf6; /* purple for quantum */
+            --accent-light: #c4b5fd;
+            --bg: #f5f3ff;
+            --card-bg: #ffffff;
+            --text: #2e1065;
+            --border: #ede9fe;
+            --formula-bg: #f3f4f6;
+            --formula-border: #8b5cf6;
+            --danger-bg: #fef2f2;
+            --danger-border: #ef4444;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); line-height: 1.7; }
+        header {
+            background: linear-gradient(135deg, #2e1065 0%, #4c1d95 100%);
+            color: white; padding: 2.5rem 1rem; text-align: center;
+            border-bottom: 4px solid var(--accent);
+        }
+        header h1 { margin: 0; font-size: 2.2rem; font-weight: 700; }
+        header p { color: var(--accent-light); margin: 0.5rem 0 0; }
+        .nav-link { display: inline-block; margin-top: 1rem; color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+        .nav-link:hover { color: white; }
+        .container { max-width: 920px; margin: 2.5rem auto; padding: 0 1.5rem; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 16px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+        .card:hover { box-shadow: 0 4px 24px rgba(139,92,246,0.12); }
+        h2 { color: var(--primary); font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-top: 0; }
+        h3 { color: var(--accent); margin-top: 1.5rem; font-weight: 600; font-size: 1.1rem; }
+        .formula-box { background: var(--formula-bg); border-left: 4px solid var(--formula-border); padding: 1rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; font-size: 1.05rem; }
+        .danger-box { background: var(--danger-bg); border-left: 4px solid var(--danger-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        ul, ol { padding-left: 1.5rem; }
+        li { margin-bottom: 0.4rem; }
+        footer { text-align: center; padding: 2rem; background: var(--primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Module 5: Shor's Algorithm</h1>
+        <p>Quantum computing's threat to modern cryptography</p>
+        <a href="../index.html" class="nav-link">← Back to Home</a>
+    </header>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>1. What is Shor's Algorithm?</h2>
+            <p><strong>Shor's Algorithm</strong> is a quantum computer algorithm formulated by Peter Shor in 1994. It is designed to find the prime factors of an integer \( N \).</p>
+            <p>While classical computers take <em>sub-exponential</em> time to factor large numbers (using algorithms like the General Number Field Sieve), Shor's algorithm runs in <strong>polynomial time</strong> on a quantum computer. This means it is exponentially faster than the most efficient known classical factoring algorithm.</p>
+        </div>
+
+        <div class="card">
+            <h2>2. The Threat to Cryptography</h2>
+            <p>Most modern public-key cryptography relies on mathematical problems that are easy to compute in one direction but extremely difficult to reverse on classical computers.</p>
+            <ul>
+                <li><strong>RSA Encryption:</strong> Relies on the difficulty of integer factorization (finding \( p \) and \( q \) from \( N \)).</li>
+                <li><strong>Diffie-Hellman & DSA/ECDSA:</strong> Relies on the difficulty of solving the Discrete Logarithm Problem (DLP).</li>
+            </ul>
+            <div class="danger-box">
+                <strong>🚨 The Quantum Threat:</strong> Shor's Algorithm can solve BOTH integer factorization and the discrete logarithm problem in polynomial time. If a sufficiently large, stable quantum computer is ever built, RSA, Diffie-Hellman, and Elliptic Curve Cryptography will be completely broken.
+            </div>
+            <p>This threat has sparked the massive transition towards <strong>Post-Quantum Cryptography (PQC)</strong>, which involves mathematical problems (like lattice-based cryptography) that even quantum computers cannot solve efficiently.</p>
+        </div>
+
+        <div class="card">
+            <h2>3. How Shor's Algorithm Works (High-Level)</h2>
+            <p>The algorithm consists of two main parts: a classical reduction step and a quantum period-finding step.</p>
+            
+            <h3>Part 1: Classical Reduction</h3>
+            <p>The factorization problem is reduced to the problem of finding the period of a function.</p>
+            <ol>
+                <li>Choose a random number \( a < N \).</li>
+                <li>Compute the greatest common divisor \( \gcd(a, N) \). If it is greater than 1, we got extremely lucky and have already found a non-trivial factor of \( N \). We are done.</li>
+                <li>If \( \gcd(a, N) = 1 \), then \( a \) and \( N \) are coprime. Proceed to the quantum step.</li>
+            </ol>
+
+            <h3>Part 2: Quantum Period Finding</h3>
+            <p>We need to find the period \( r \) of the modular exponentiation function:</p>
+            <div class="formula-box">
+                \( f(x) = a^x \bmod N \)
+            </div>
+            <p>The period \( r \) is the smallest positive integer such that \( a^r \equiv 1 \pmod N \). Finding \( r \) classically is too slow, but a quantum computer can find it quickly using a <strong>Quantum Fourier Transform (QFT)</strong>.</p>
+
+            <h3>Part 3: Classical Factor Extraction</h3>
+            <p>Once the quantum computer finds the period \( r \):</p>
+            <ol>
+                <li>If \( r \) is odd, the algorithm fails. Go back to step 1 and pick a new \( a \).</li>
+                <li>If \( a^{r/2} \equiv -1 \pmod N \), the algorithm fails. Pick a new \( a \).</li>
+                <li>Otherwise, both \( (a^{r/2} - 1) \) and \( (a^{r/2} + 1) \) share a factor with \( N \).</li>
+            </ol>
+            <p>We can compute the prime factors of \( N \) using the classical Euclidean algorithm:</p>
+            <div class="formula-box">
+                Factor 1 = \( \gcd(a^{r/2} + 1, N) \) <br>
+                Factor 2 = \( \gcd(a^{r/2} - 1, N) \)
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>CSE 4783 Cryptography Study Guide | Shor's Algorithm</p>
+    </footer>
+
+</body>
+</html>
