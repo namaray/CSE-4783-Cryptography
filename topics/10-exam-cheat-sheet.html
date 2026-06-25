@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Exam Cheat Sheet | CSE 4783</title>
+    <meta name="description" content="Quick review cheat sheet for CSE 4783 Final Exam (Modules 5-9).">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root {
+            --primary: #1a1a2e;
+            --accent: #f59e0b;
+            --accent-light: #fcd34d;
+            --bg: #fffbeb;
+            --card-bg: #ffffff;
+            --text: #1e1b4b;
+            --border: #fde68a;
+            --formula-bg: #fef3c7;
+            --formula-border: #f59e0b;
+            --mod-5: #7c3aed;
+            --mod-6: #2563eb;
+            --mod-7: #059669;
+            --mod-8: #dc2626;
+            --mod-9: #0891b2;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); line-height: 1.6; font-size: 0.95rem; }
+        header {
+            background: linear-gradient(135deg, #78350f 0%, #b45309 100%);
+            color: white; padding: 2rem 1rem; text-align: center;
+            border-bottom: 4px solid var(--accent);
+        }
+        header h1 { margin: 0; font-size: 2rem; font-weight: 700; }
+        header p { color: var(--accent-light); margin: 0.5rem 0 0; }
+        .nav-link { display: inline-block; margin-top: 1rem; color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+        .nav-link:hover { color: white; }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
+        
+        .card { background: var(--card-bg); border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        .card.full-width { grid-column: 1 / -1; }
+        
+        h2 { font-size: 1.25rem; font-weight: 700; padding-bottom: 0.4rem; margin-top: 0; border-bottom: 3px solid; }
+        h2.c5 { color: var(--mod-5); border-color: var(--mod-5); }
+        h2.c6 { color: var(--mod-6); border-color: var(--mod-6); }
+        h2.c7 { color: var(--mod-7); border-color: var(--mod-7); }
+        h2.c8 { color: var(--mod-8); border-color: var(--mod-8); }
+        h2.c9 { color: var(--mod-9); border-color: var(--mod-9); }
+        
+        h3 { font-size: 1rem; font-weight: 600; margin-top: 1.2rem; margin-bottom: 0.4rem; color: #374151; }
+        
+        .formula-box { background: var(--formula-bg); border-left: 3px solid var(--formula-border); padding: 0.8rem 1rem; margin: 0.8rem 0; border-radius: 0 6px 6px 0; font-size: 0.95rem; }
+        .c5-box { background: #f5f3ff; border-color: var(--mod-5); }
+        .c6-box { background: #eff6ff; border-color: var(--mod-6); }
+        .c7-box { background: #f0fdf4; border-color: var(--mod-7); }
+        .c8-box { background: #fef2f2; border-color: var(--mod-8); }
+        .c9-box { background: #ecfeff; border-color: var(--mod-9); }
+        
+        ul, ol { padding-left: 1.2rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        li { margin-bottom: 0.3rem; }
+        
+        table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.85rem; }
+        th, td { border: 1px solid #e5e7eb; padding: 6px 10px; text-align: left; }
+        th { background: #f3f4f6; font-weight: 600; color: #1f2937; }
+        
+        .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background: #e5e7eb; color: #374151; }
+        
+        footer { text-align: center; padding: 1.5rem; margin-top: 2rem; background: #78350f; color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🔥 Final Exam Quick Review</h1>
+        <p>Modules 5 to 9: Steganography, Key Establishment, Hash, Signatures, ZKP/DKG</p>
+        <a href="../index.html" class="nav-link">← Back to Home</a>
+    </header>
+
+    <div class="container">
+
+        <!-- ================= MOD 5 ================= -->
+        <div class="card">
+            <h2 class="c5">Module 5: Steganography</h2>
+            <p><strong>Goal:</strong> Hide existence of a message. Cover image \( I \), Stego image \( S \).</p>
+            
+            <h3>Performance Metrics</h3>
+            <div class="formula-box c5-box">
+                Max Payload = \( h_1 + h_2 \) (frequencies of peaks) <br>
+                Embedding Capacity (bpp) = \( \frac{h_1 + h_2}{w \times h} \) <br>
+                PSNR = \( 10\log_{10}\!\left(\frac{255^2}{\text{MSE}}\right) \text{ dB} \)
+            </div>
+            
+            <h3>Prediction Error Histogram (PEH)</h3>
+            <ul>
+                <li><strong>Peaks:</strong> \( P_+ \) (positive peak), \( P_- \) (negative peak).</li>
+                <li><strong>Shift Non-embeddable:</strong><br> If \( r > P_+ \Rightarrow \tilde{r} = r + 1 \)<br> If \( r < P_- \Rightarrow \tilde{r} = r - 1 \)</li>
+                <li><strong>Embed bit \( b \):</strong><br> If \( r = P_+ \Rightarrow \tilde{r} = r + b \)<br> If \( r = P_- \Rightarrow \tilde{r} = r - b \)</li>
+            </ul>
+
+            <h3>Prediction Formulas</h3>
+            <div class="formula-box c5-box">
+                <strong>Method 1 (Single):</strong> \( P_i = \sum w_j \cdot I_j \) <br>
+                <strong>Method 2 (Block):</strong> Centre \( c_i \) predicts 8 satellites \( p_{i,j} \) using weighted avg of \( c_i \) and adjacent block centres.<br>
+                Error: \( e_{i,j} = I_{i,j} - p_{i,j} \)
+            </div>
+        </div>
+
+        <!-- ================= MOD 6 ================= -->
+        <div class="card">
+            <h2 class="c6">Module 6: Key Establishment</h2>
+            <p><strong>Goal:</strong> Securely share a session key over a public channel.</p>
+            
+            <h3>Diffie-Hellman Protocol</h3>
+            <p>Based on the Discrete Log Problem. Public params: large prime \( p \), generator \( \alpha \).</p>
+            <div class="formula-box c6-box">
+                <strong>Alice:</strong> random \( a \), sends \( A = \alpha^a \bmod p \)<br>
+                <strong>Bob:</strong> random \( b \), sends \( B = \alpha^b \bmod p \)<br>
+                <strong>Session Key:</strong> \( k_{AB} = B^a \bmod p = A^b \bmod p = \alpha^{ab} \bmod p \)
+            </div>
+            
+            <h3>Man-in-the-Middle (MitM)</h3>
+            <p>DH has <strong>no authentication</strong>. Eve intercepts \( A \) and \( B \), sends her own \( E = \alpha^e \). She shares key \( k_{AE} \) with Alice and \( k_{BE} \) with Bob.</p>
+
+            <h3>KDC vs CA</h3>
+            <table>
+                <tr><th>KDC (Symmetric)</th><th>CA (Asymmetric)</th></tr>
+                <tr><td>Shares secret key w/ users</td><td>Knows NO private keys</td></tr>
+                <tr><td>Generates session keys</td><td>Signs public keys (certs)</td></tr>
+                <tr><td>Must be ONLINE</td><td>Can be OFFLINE</td></tr>
+                <tr><td>Single point of failure</td><td>Safer against compromise</td></tr>
+            </table>
+        </div>
+
+        <!-- ================= MOD 7 ================= -->
+        <div class="card">
+            <h2 class="c7">Module 7: Hash Functions</h2>
+            <p><strong>Goal:</strong> Map arbitrary length input \( M \) to fixed-length digest \( h = H(M) \).</p>
+            
+            <h3>3 Critical Properties</h3>
+            <ul>
+                <li><strong>Pre-image Resistance (One-Way):</strong> Given \( h \), hard to find \( M \).</li>
+                <li><strong>2nd Pre-image Resistance:</strong> Given \( M_1 \), hard to find \( M_2 \neq M_1 \) where \( H(M_1) = H(M_2) \).</li>
+                <li><strong>Collision Resistance:</strong> Hard to find ANY \( M_1 \neq M_2 \) where \( H(M_1) = H(M_2) \). (Implies 2nd pre-image).</li>
+            </ul>
+
+            <h3>Birthday Attack</h3>
+            <div class="formula-box c7-box">
+                Complexity to find collision: \( \approx 2^{n/2} \) attempts<br>
+                <em>SHA-256 takes \( 2^{128} \) attempts.</em>
+            </div>
+
+            <h3>Algorithms & Applications</h3>
+            <ul>
+                <li><strong>Broken:</strong> MD5 (128-bit), SHA-1 (160-bit).</li>
+                <li><strong>Secure:</strong> SHA-2 (SHA-256/512), SHA-3.</li>
+                <li><strong>Applications:</strong> Data integrity, Passwords (with salt), Digital Signatures (hash before sign), Blockchains.</li>
+                <li><strong>HMAC:</strong> \( H((K \oplus \text{opad}) \| H((K \oplus \text{ipad}) \| M)) \)</li>
+            </ul>
+        </div>
+
+        <!-- ================= MOD 8 ================= -->
+        <div class="card">
+            <h2 class="c8">Module 8: Digital Signatures</h2>
+            <p><strong>Goal:</strong> Electronic equivalent of a handwritten signature using asymmetric cryptography.</p>
+
+            <h3>Security Services</h3>
+            <ul>
+                <li><span class="badge" style="background:#fecaca;color:#991b1b">Encryption</span> <strong>Confidentiality:</strong> Kept secret.</li>
+                <li><span class="badge" style="background:#d1fae5;color:#065f46">Signature</span> <strong>Integrity:</strong> Not modified.</li>
+                <li><span class="badge" style="background:#d1fae5;color:#065f46">Signature</span> <strong>Authentication:</strong> Sender identity verified.</li>
+                <li><span class="badge" style="background:#d1fae5;color:#065f46">Signature</span> <strong>Non-Repudiation:</strong> Cannot deny sending.</li>
+            </ul>
+
+            <h3>Process (Sign Hash, Not Message)</h3>
+            <ol>
+                <li>Hash message: \( z = H(x) \).</li>
+                <li>Sign digest with <strong>Private Key</strong>: \( y = \text{sig}_{K_{pr}}(z) \).</li>
+                <li>Verify signature with <strong>Public Key</strong>: \( z' = \text{ver}_{K_{pub}}(y) \).</li>
+                <li>Compare \( z' \) to \( H(x) \). Match = Valid.</li>
+            </ol>
+
+            <h3>RSA Signature vs DSA</h3>
+            <ul>
+                <li><strong>RSA:</strong> Sign = \( x^d \bmod n \). Verify = \( y^e \bmod n \). Deterministic.</li>
+                <li><strong>DSA:</strong> Based on Discrete Log. Probabilistic (uses random \( k_{E} \), signature changes every time).</li>
+            </ul>
+        </div>
+
+        <!-- ================= MOD 9 ================= -->
+        <div class="card full-width">
+            <h2 class="c9">Module 9: ZKP, Schnorr, DKG</h2>
+            
+            <h3>Zero-Knowledge Proofs (ZKP)</h3>
+            <p>Prove a statement is true without revealing the secret (e.g., Ali Baba's cave).</p>
+            <ul>
+                <li><strong>Completeness:</strong> Honest prover always convinces honest verifier.</li>
+                <li><strong>Soundness:</strong> Cheating prover cannot convince honest verifier. (Prob of cheating succeeding \( n \) rounds = \( (1/2)^n \)).</li>
+                <li><strong>Zero-Knowledge:</strong> Verifier learns nothing but the truth of the statement.</li>
+            </ul>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.2rem;">
+                <div>
+                    <h3>Schnorr Identification Protocol</h3>
+                    <p>Prover proves knowledge of private key \( a \) without revealing it. Setup: \( v = \alpha^{-a} \bmod p \).</p>
+                    <div class="formula-box c9-box">
+                        <strong>1. Commit:</strong> Prover sends \( x = \alpha^k \bmod p \)<br>
+                        <strong>2. Challenge:</strong> Verifier sends random \( e \)<br>
+                        <strong>3. Response:</strong> Prover sends \( y = (k + a \cdot e) \bmod q \)<br>
+                        <strong>Verify:</strong> Check if \( x \equiv \alpha^y \cdot v^e \bmod p \)
+                    </div>
+                </div>
+
+                <div>
+                    <h3>Shamir's Distributed Key Generation</h3>
+                    <p>Split a secret \( s \) into \( n \) shares, require \( t \) shares to reconstruct.</p>
+                    <div class="formula-box c9-box">
+                        <strong>Polynomial:</strong> \( f(x) = s + a_1x + a_2x^2 + \dots \bmod p \)<br>
+                        <strong>Secret is:</strong> \( f(0) = s \)<br>
+                        <strong>Lagrange Interpolation (at x=0):</strong><br>
+                        \( s = \sum y_i L_i(0) \) &nbsp; where &nbsp; \( L_i(0) = \prod_{j \neq i} \frac{x_j}{x_j - x_i} \)
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+    <footer>
+        <p>Best of luck on your final exam! 🚀</p>
+    </footer>
+
+</body>
+</html>
