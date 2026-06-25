@@ -3,30 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSE 4783: Cryptography | Complete Study Guide</title>
-    <meta name="description" content="A complete study guide for CSE 4783 Cryptography at UIU. Covers classical ciphers, modern block ciphers, hash functions, digital signatures, ZKP, and more.">
+    <title>CSE 4783: Cryptography | Study Guide</title>
+    <meta name="description" content="Complete study guide for CSE 4783 Cryptography at UIU. Select Midterm or Final to get started.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0f0f23;
-            --primary-mid: #1a1a3e;
-            --accent: #6366f1;
-            --accent-glow: rgba(99,102,241,0.3);
-            --gold: #f59e0b;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
-            --card-bg: rgba(255,255,255,0.04);
-            --card-border: rgba(255,255,255,0.08);
-            --card-hover-border: rgba(99,102,241,0.5);
-
-            /* Category accent colors */
-            --cat1: #6366f1; /* Classical - Indigo */
-            --cat2: #0ea5e9; /* Modern Block - Sky */
-            --cat3: #8b5cf6; /* Advanced Block - Purple */
-            --cat4: #10b981; /* Hashing & Auth - Emerald */
-            --cat5: #f59e0b; /* Public Key & Protocols - Amber */
-            --cat6: #ef4444; /* Zero Knowledge - Red */
+            --primary:       #0f0f23;
+            --accent:        #6366f1;
+            --accent-mid:    #0ea5e9;   /* Midterm = sky blue */
+            --accent-final:  #7c3aed;   /* Final    = violet  */
+            --gold:          #f59e0b;
+            --text:          #e2e8f0;
+            --text-muted:    #94a3b8;
+            --card-bg:       rgba(255,255,255,0.04);
+            --card-border:   rgba(255,255,255,0.08);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,705 +30,724 @@
             min-height: 100vh;
         }
 
-        /* ===================== HERO HEADER ===================== */
-        header {
+        /* ===================== SHARED HEADER ===================== */
+        .site-header {
             position: relative;
             background: linear-gradient(135deg, #0f0f23 0%, #1e1b4b 40%, #0f172a 100%);
-            padding: 5rem 1rem 4rem;
+            padding: 3rem 1rem 2.5rem;
             text-align: center;
             overflow: hidden;
+            border-bottom: 1px solid var(--card-border);
         }
-
-        header::before {
+        .site-header::before {
             content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            position: absolute; inset: 0;
             background:
-                radial-gradient(ellipse 60% 50% at 50% 0%, rgba(99,102,241,0.2) 0%, transparent 70%),
-                radial-gradient(circle at 10% 80%, rgba(139,92,246,0.1) 0%, transparent 50%),
-                radial-gradient(circle at 90% 80%, rgba(14,165,233,0.1) 0%, transparent 50%);
+                radial-gradient(ellipse 60% 50% at 50% 0%, rgba(99,102,241,0.18) 0%, transparent 70%);
             pointer-events: none;
         }
-
         .header-badge {
             display: inline-block;
             background: rgba(99,102,241,0.15);
-            border: 1px solid rgba(99,102,241,0.4);
+            border: 1px solid rgba(99,102,241,0.35);
             color: #a5b4fc;
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            padding: 0.35rem 1rem;
-            border-radius: 20px;
-            margin-bottom: 1.5rem;
-            position: relative;
+            font-size: 0.75rem; font-weight: 600;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 0.3rem 1rem; border-radius: 20px;
+            margin-bottom: 1rem; position: relative;
         }
-
-        header h1 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 800;
-            letter-spacing: -0.02em;
+        .site-header h1 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 800; letter-spacing: -0.02em;
             position: relative;
             background: linear-gradient(135deg, #e2e8f0 30%, #a5b4fc 70%, #c4b5fd 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.2;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; line-height: 1.2;
+        }
+        .site-header .subtitle {
+            margin-top: 0.6rem; color: var(--text-muted);
+            font-size: 0.95rem; position: relative;
         }
 
-        header .subtitle {
-            margin-top: 1rem;
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            max-width: 550px;
-            margin-left: auto;
-            margin-right: auto;
-            position: relative;
+        /* ===================== BACK BUTTON ===================== */
+        .back-btn {
+            display: none;
+            align-items: center; gap: 0.5rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted); font-size: 0.85rem; font-weight: 500;
+            padding: 0.45rem 1rem; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s;
+            position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%);
         }
+        .back-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+        .back-btn.visible { display: flex; }
 
-        .header-stats {
+        /* ===================== SECTION LABEL ===================== */
+        .section-pill {
+            display: none;
+            align-items: center; gap: 0.5rem;
+            font-size: 0.8rem; font-weight: 700;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            padding: 0.3rem 1rem; border-radius: 20px;
+            margin: 0 auto 0; position: relative;
+        }
+        .section-pill.mid  { background: rgba(14,165,233,0.15); border: 1px solid rgba(14,165,233,0.35); color: #7dd3fc; }
+        .section-pill.fin  { background: rgba(124,58,237,0.15);  border: 1px solid rgba(124,58,237,0.35); color: #c4b5fd; }
+        .section-pill.visible { display: inline-flex; margin-top: 1rem; }
+
+        /* ===================== SELECTOR SCREEN ===================== */
+        #selector {
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            gap: 2.5rem;
-            margin-top: 2.5rem;
-            position: relative;
-            flex-wrap: wrap;
+            padding: 4rem 1.5rem 5rem;
+            transition: opacity 0.35s ease, transform 0.35s ease;
         }
-
-        .stat {
+        #selector.hidden {
+            opacity: 0; pointer-events: none; transform: translateY(-20px);
+            position: absolute; width: 100%;
+        }
+        .selector-label {
+            font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--text-muted); margin-bottom: 2rem;
+        }
+        .selector-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            max-width: 780px; width: 100%;
+        }
+        .selector-card {
+            border-radius: 18px;
+            padding: 2.5rem 2rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.25s ease;
             text-align: center;
+            position: relative; overflow: hidden;
+            text-decoration: none; color: inherit;
         }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #a5b4fc;
+        .selector-card::after {
+            content: '';
+            position: absolute; inset: 0;
+            opacity: 0;
+            transition: opacity 0.25s;
         }
+        .selector-card:hover::after { opacity: 1; }
+        .selector-card:hover { transform: translateY(-6px); }
 
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-top: 0.2rem;
+        /* Midterm card */
+        .sel-mid {
+            background: linear-gradient(135deg, rgba(14,165,233,0.1) 0%, rgba(14,165,233,0.04) 100%);
+            border-color: rgba(14,165,233,0.25);
         }
+        .sel-mid:hover { border-color: rgba(14,165,233,0.6); box-shadow: 0 16px 50px rgba(14,165,233,0.18); }
+        .sel-mid::after { background: radial-gradient(ellipse at center, rgba(14,165,233,0.08) 0%, transparent 70%); }
 
-        /* ===================== MAIN CONTENT ===================== */
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 3rem 1.5rem 4rem;
+        /* Final card */
+        .sel-fin {
+            background: linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(124,58,237,0.04) 100%);
+            border-color: rgba(124,58,237,0.25);
+        }
+        .sel-fin:hover { border-color: rgba(124,58,237,0.6); box-shadow: 0 16px 50px rgba(124,58,237,0.2); }
+        .sel-fin::after { background: radial-gradient(ellipse at center, rgba(124,58,237,0.08) 0%, transparent 70%); }
+
+        .sel-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+        .sel-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .sel-mid .sel-title { color: #7dd3fc; }
+        .sel-fin .sel-title { color: #c4b5fd; }
+        .sel-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
+        .sel-meta {
+            margin-top: 1.2rem;
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem;
+        }
+        .sel-tag {
+            font-size: 0.7rem; font-weight: 500; color: var(--text-muted);
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            padding: 2px 8px; border-radius: 4px;
+        }
+        .sel-cta {
+            display: inline-block; margin-top: 1.5rem;
+            font-size: 0.85rem; font-weight: 700;
+            padding: 0.55rem 1.4rem; border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .sel-mid .sel-cta  { background: rgba(14,165,233,0.15);  color: #7dd3fc;  border: 1px solid rgba(14,165,233,0.3); }
+        .sel-fin .sel-cta  { background: rgba(124,58,237,0.15);  color: #c4b5fd;  border: 1px solid rgba(124,58,237,0.3); }
+        .selector-card:hover .sel-cta { background: rgba(255,255,255,0.12); }
+
+        /* ===================== CONTENT SECTIONS ===================== */
+        .content-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+            padding: 2.5rem 1.5rem 4rem;
+            max-width: 1280px; margin: 0 auto;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .content-section.visible {
+            opacity: 1; transform: translateY(0);
         }
 
         /* ===================== CATEGORY SECTIONS ===================== */
-        .category-section {
-            margin-bottom: 4rem;
-        }
-
+        .category-section { margin-bottom: 3.5rem; }
         .category-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
+            display: flex; align-items: center; gap: 1rem;
+            margin-bottom: 1.5rem; padding-bottom: 1rem;
             border-bottom: 1px solid var(--card-border);
         }
-
         .cat-icon {
-            width: 2.5rem; height: 2.5rem;
-            border-radius: 10px;
+            width: 2.5rem; height: 2.5rem; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
+            font-size: 1.2rem; flex-shrink: 0;
         }
+        .category-header h2 { font-size: 1.25rem; font-weight: 700; color: var(--text); }
+        .category-header .cat-meta { font-size: 0.82rem; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
 
-        .category-header h2 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .category-header .cat-desc {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-left: auto;
-        }
-
-        /* ===================== CARD GRID ===================== */
+        /* ===================== MODULE GRID & CARDS ===================== */
         .module-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
             gap: 1.2rem;
         }
-
-        /* ===================== MODULE CARDS ===================== */
         .module-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 1.6rem;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.25s ease;
-            position: relative;
-            overflow: hidden;
+            border-radius: 14px; padding: 1.6rem;
+            text-decoration: none; color: inherit;
+            display: flex; flex-direction: column;
+            transition: all 0.25s ease; position: relative; overflow: hidden;
         }
-
         .module-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: var(--card-accent, var(--accent));
-            opacity: 0;
-            transition: opacity 0.25s ease;
+            content: ''; position: absolute; top: 0; left: 0; right: 0;
+            height: 3px; background: var(--card-accent, var(--accent));
+            opacity: 0; transition: opacity 0.25s ease;
         }
-
         .module-card:hover {
-            border-color: var(--card-hover-border);
+            border-color: rgba(99,102,241,0.4);
             background: rgba(255,255,255,0.07);
             transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(99,102,241,0.2);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
         }
-
-        .module-card:hover::before {
-            opacity: 1;
-        }
-
+        .module-card:hover::before { opacity: 1; }
         .card-top {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            margin-bottom: 1rem;
+            display: flex; align-items: flex-start;
+            justify-content: space-between; margin-bottom: 1rem;
         }
-
-        .card-emoji {
-            font-size: 1.8rem;
-            line-height: 1;
-        }
-
+        .card-emoji { font-size: 1.8rem; line-height: 1; }
         .card-num {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            background: rgba(255,255,255,0.06);
-            border: 1px solid var(--card-border);
-            padding: 2px 8px;
-            border-radius: 20px;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
+            font-size: 0.68rem; font-weight: 700; color: var(--text-muted);
+            background: rgba(255,255,255,0.06); border: 1px solid var(--card-border);
+            padding: 2px 8px; border-radius: 20px; letter-spacing: 0.05em; text-transform: uppercase;
         }
-
-        .module-card h3 {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #e2e8f0;
-            margin-bottom: 0.6rem;
-        }
-
-        .module-card p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            flex-grow: 1;
-            line-height: 1.6;
-            margin-bottom: 1.2rem;
-        }
-
-        .topic-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            margin-bottom: 1.2rem;
-        }
-
+        .module-card h3 { font-size: 1.05rem; font-weight: 700; color: #e2e8f0; margin-bottom: 0.5rem; }
+        .module-card p { font-size: 0.85rem; color: var(--text-muted); flex-grow: 1; line-height: 1.6; margin-bottom: 1.2rem; }
+        .topic-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
         .tag {
-            font-size: 0.7rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 2px 8px;
-            border-radius: 4px;
+            font-size: 0.7rem; font-weight: 500; color: var(--text-muted);
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            padding: 2px 8px; border-radius: 4px;
         }
-
-        .read-link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            transition: color 0.2s;
-            margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px solid var(--card-border);
-        }
-
-        .module-card:hover .read-link {
-            color: #a5b4fc;
-        }
-
-        .read-link span { letter-spacing: 0.5px; }
-
-        /* Source badge variants */
         .src-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 2px 7px;
-            border-radius: 4px;
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.05em; padding: 2px 7px; border-radius: 4px; margin-bottom: 0.6rem;
         }
-        .src-slide { background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.25); }
-        .src-chapter { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
-        .src-notes { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }
+        .src-slide   { background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.25); }
+        .src-chapter { background: rgba(16,185,129,0.15);  color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
+        .src-notes   { background: rgba(245,158,11,0.15);  color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }
+        .read-link {
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 0.82rem; font-weight: 600; color: var(--text-muted);
+            transition: color 0.2s; margin-top: auto;
+            padding-top: 1rem; border-top: 1px solid var(--card-border);
+        }
+        .module-card:hover .read-link { color: #a5b4fc; }
+
+        /* ===================== STATS ROW ===================== */
+        .stats-row {
+            display: flex; gap: 2rem; flex-wrap: wrap;
+            margin-bottom: 2.5rem; padding: 1.2rem 1.5rem;
+            background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px;
+        }
+        .stat { text-align: center; }
+        .stat-num { font-size: 1.6rem; font-weight: 800; }
+        .stat-lbl { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 0.1rem; }
+        #mid-section .stat-num  { color: #7dd3fc; }
+        #fin-section .stat-num  { color: #c4b5fd; }
 
         /* ===================== FOOTER ===================== */
         footer {
-            text-align: center;
-            padding: 2.5rem;
+            text-align: center; padding: 2rem;
             border-top: 1px solid var(--card-border);
-            color: var(--text-muted);
-            font-size: 0.85rem;
+            color: var(--text-muted); font-size: 0.82rem;
         }
-
         footer a { color: #a5b4fc; text-decoration: none; }
 
         /* ===================== RESPONSIVE ===================== */
-        @media (max-width: 640px) {
+        @media (max-width: 600px) {
+            .selector-grid { grid-template-columns: 1fr; }
             .module-grid { grid-template-columns: 1fr; }
-            .category-header .cat-desc { display: none; }
-            .header-stats { gap: 1.5rem; }
+            .back-btn { position: static; transform: none; margin-bottom: 0.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ==================== HERO HEADER ==================== -->
-    <header>
-        <div class="header-badge">United International University · CSE 4783</div>
-        <h1>Cryptography<br>Study Guide</h1>
-        <p class="subtitle">A complete reference for all course modules — from classical ciphers to zero-knowledge proofs.</p>
-        <div class="header-stats">
-            <div class="stat">
-                <div class="stat-number">9</div>
-                <div class="stat-label">Modules</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">5</div>
-                <div class="stat-label">Categories</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">40+</div>
-                <div class="stat-label">Key Topics</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">3</div>
-                <div class="stat-label">Past Papers</div>
-            </div>
+<!-- ========================= SITE HEADER ========================= -->
+<header class="site-header" id="site-header">
+    <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+        <button class="back-btn" id="back-btn" onclick="goBack()">← Back</button>
+        <div>
+            <div class="header-badge">United International University · CSE 4783</div>
+            <h1>Cryptography<br>Study Guide</h1>
+            <p class="subtitle" id="header-sub">Choose a section to get started</p>
+            <div id="section-pill-mid" class="section-pill mid">📘 Midterm Syllabus</div>
+            <div id="section-pill-fin" class="section-pill fin">📗 Final Syllabus</div>
         </div>
-    </header>
+    </div>
+</header>
 
-    <!-- ==================== MAIN CONTENT ==================== -->
-    <div class="container">
+<!-- ========================= SELECTOR SCREEN ========================= -->
+<div id="selector">
+    <p class="selector-label">Which exam are you studying for?</p>
+    <div class="selector-grid">
 
-        <!-- ============================
-             CATEGORY 1: CLASSICAL CRYPTOGRAPHY
-        ============================= -->
-        <div class="category-section">
-            <div class="category-header">
-                <div class="cat-icon" style="background: rgba(99,102,241,0.15);">🏛️</div>
-                <div>
-                    <h2 style="color: #a5b4fc;">Classical Cryptography</h2>
-                    <p style="font-size:0.82rem; color: var(--text-muted); margin:0;">Foundational ciphers, substitution & transposition techniques</p>
-                </div>
-                <span class="category-header cat-desc">Modules 1 – 2</span>
+        <!-- Midterm -->
+        <div class="selector-card sel-mid" onclick="showSection('mid')" id="sel-mid-card">
+            <span class="sel-icon">📘</span>
+            <div class="sel-title">Midterm</div>
+            <p class="sel-desc">Classical ciphers to modern block cipher modes. Foundational symmetric cryptography.</p>
+            <div class="sel-meta">
+                <span class="sel-tag">Classical Ciphers</span>
+                <span class="sel-tag">Feistel / DES</span>
+                <span class="sel-tag">Modes of Operation</span>
+                <span class="sel-tag">4 Modules</span>
             </div>
-            <div class="module-grid">
-
-                <!-- Module 1 -->
-                <a href="CSE-4783-Cryptography/topics/1-intro-and-classical-ciphers.html"
-                   class="module-card" style="--card-accent: var(--cat1);">
-                    <div class="card-top">
-                        <div class="card-emoji">🔐</div>
-                        <span class="card-num">Module 01</span>
-                    </div>
-                    <h3>Intro & Classical Ciphers</h3>
-                    <p>Core cryptography terminology, symmetric vs. asymmetric crypto, cryptanalysis attack models, and the complete family of substitution ciphers.</p>
-                    <div class="topic-tags">
-                        <span class="tag">Caesar Cipher</span>
-                        <span class="tag">Affine</span>
-                        <span class="tag">Vigenère</span>
-                        <span class="tag">Playfair</span>
-                        <span class="tag">Hill Cipher</span>
-                    </div>
-                    <div class="read-link">
-                        <span>View Study Notes</span>
-                        <span>→</span>
-                    </div>
-                </a>
-
-                <!-- Module 2 -->
-                <a href="CSE-4783-Cryptography/topics/2-transposition-and-pad.html"
-                   class="module-card" style="--card-accent: var(--cat1);">
-                    <div class="card-top">
-                        <div class="card-emoji">🔀</div>
-                        <span class="card-num">Module 02</span>
-                    </div>
-                    <h3>Transposition & Pad Ciphers</h3>
-                    <p>Keyless and keyed transposition ciphers, the unbreakable One-Time Pad, and the foundational components of modern block ciphers.</p>
-                    <div class="topic-tags">
-                        <span class="tag">Keyed Transposition</span>
-                        <span class="tag">One-Time Pad</span>
-                        <span class="tag">S-Box</span>
-                        <span class="tag">P-Box</span>
-                        <span class="tag">Shannon's Theory</span>
-                    </div>
-                    <div class="read-link">
-                        <span>View Study Notes</span>
-                        <span>→</span>
-                    </div>
-                </a>
-
-            </div>
+            <div class="sel-cta">View Midterm Notes →</div>
         </div>
 
-        <!-- ============================
-             CATEGORY 2: MODERN SYMMETRIC CRYPTOGRAPHY
-        ============================= -->
-        <div class="category-section">
-            <div class="category-header">
-                <div class="cat-icon" style="background: rgba(14,165,233,0.15);">⚙️</div>
-                <div>
-                    <h2 style="color: #7dd3fc;">Modern Symmetric Cryptography</h2>
-                    <p style="font-size:0.82rem; color: var(--text-muted); margin:0;">Block ciphers, DES, and modes of operation</p>
-                </div>
-                <span class="category-header cat-desc">Modules 3 – 4</span>
+        <!-- Final -->
+        <div class="selector-card sel-fin" onclick="showSection('fin')" id="sel-fin-card">
+            <span class="sel-icon">📗</span>
+            <div class="sel-title">Final</div>
+            <p class="sel-desc">Hash functions, digital signatures, key establishment, steganography, and advanced protocols.</p>
+            <div class="sel-meta">
+                <span class="sel-tag">Hash Functions</span>
+                <span class="sel-tag">Digital Signatures</span>
+                <span class="sel-tag">ZKP / Schnorr</span>
+                <span class="sel-tag">5 Modules + CTs</span>
             </div>
-            <div class="module-grid">
-
-                <!-- Module 3 -->
-                <a href="CSE-4783-Cryptography/topics/3-feistel-and-des.html"
-                   class="module-card" style="--card-accent: var(--cat2);">
-                    <div class="card-top">
-                        <div class="card-emoji">🔩</div>
-                        <span class="card-num">Module 03</span>
-                    </div>
-                    <h3>Feistel Cipher & DES</h3>
-                    <p>The Feistel architecture with mixers and swappers, the complete Data Encryption Standard, key generation, and multiple encryption schemes.</p>
-                    <div class="topic-tags">
-                        <span class="tag">Feistel Network</span>
-                        <span class="tag">DES Structure</span>
-                        <span class="tag">F-Function</span>
-                        <span class="tag">Avalanche Effect</span>
-                        <span class="tag">3DES</span>
-                    </div>
-                    <div class="read-link">
-                        <span>View Study Notes</span>
-                        <span>→</span>
-                    </div>
-                </a>
-
-                <!-- Module 4 -->
-                <a href="CSE-4783-Cryptography/topics/4-modes-of-operation.html"
-                   class="module-card" style="--card-accent: var(--cat2);">
-                    <div class="card-top">
-                        <div class="card-emoji">🔄</div>
-                        <span class="card-num">Module 04</span>
-                    </div>
-                    <h3>Modes of Operation</h3>
-                    <p>How block ciphers handle arbitrary-length messages. All five NIST-approved modes compared, with use cases and security properties.</p>
-                    <div class="topic-tags">
-                        <span class="tag">ECB</span>
-                        <span class="tag">CBC</span>
-                        <span class="tag">CFB</span>
-                        <span class="tag">OFB</span>
-                        <span class="tag">CTR</span>
-                        <span class="tag">IV / Nonce</span>
-                    </div>
-                    <div class="read-link">
-                        <span>View Study Notes</span>
-                        <span>→</span>
-                    </div>
-                </a>
-
-            </div>
-        </div>
-
-        <!-- ============================
-             CATEGORY 3: HASHING, SIGNATURES & STEGANOGRAPHY
-        ============================= -->
-        <div class="category-section">
-            <div class="category-header">
-                <div class="cat-icon" style="background: rgba(16,185,129,0.15);">🛡️</div>
-                <div>
-                    <h2 style="color: #6ee7b7;">Integrity, Authentication & Concealment</h2>
-                    <p style="font-size:0.82rem; color: var(--text-muted); margin:0;">Hash functions, digital signatures, and steganography</p>
-                </div>
-                <span class="category-header cat-desc">Modules 5 – 8</span>
-            </div>
-            <div class="module-grid">
-
-                <!-- Module 5: Steganography -->
-                <a href="topics/5-steganography.html"
-                   class="module-card" style="--card-accent: var(--cat4);">
-                    <div class="card-top">
-                        <div class="card-emoji">🕵️</div>
-                        <span class="card-num">Module 05</span>
-                    </div>
-                    <h3>Steganography</h3>
-                    <p>Hiding secret messages inside innocent carrier media. LSB techniques for images, audio, and text steganography, plus detection via steganalysis.</p>
-                    <div class="topic-tags">
-                        <span class="tag">LSB Encoding</span>
-                        <span class="tag">Image Hiding</span>
-                        <span class="tag">Steganalysis</span>
-                        <span class="tag">Cover Medium</span>
-                    </div>
-                    <span class="src-badge src-slide" style="margin-bottom:0.5rem">📑 Slide 4</span>
-                    <div class="read-link">
-                        <span>View Study Notes</span>
-                        <span>→</span>
-                    </div>
-                </a>
-
-                <!-- Module 6: Key Establishment -->
-                <a href="topics/6-key-establishment.html"
-                   class="module-card" style="--card-accent: var(--cat4);">
-                    <div class="card-top">
-                        <div class="card-emoji">🤝</div>
-                        <span class="card-num">Module 06</span>
-                    </div>
-                    <h3>Key Establishment</h3>
-                    <p>Securely agreeing on keys over insecure channels. Diffie-Hellman exchange, KDC, PKI certificates, and Elliptic Curve DH.</p>
-                    <div class="topic-tags">
-                        <span class="tag">Diffie-Hellman</span>
-                        <span class="tag">ECDH</span>
-                        <span class="tag">PKI / Certificates</span>
-                        <span class="tag">KDC</span>
-                        <span class="tag">MITM Attack</span>
-                    </div>
-                    <span class="src-badge src-slide" style="margin-bottom:0.5rem">📑 Slide 6</span>
-                    <div class="read-link">
-                        <span>View Study Notes</span>
-                        <span>→</span>
-                    </div>
-                </a>
-
-                <!-- Module 7: Hash Functions -->
-                <a href="topics/7-hash-functions.html"
-                   class="module-card" style="--card-accent: var(--cat4);">
-                    <div class="card-top">
-                        <div class="card-emoji">#️⃣</div>
-                        <span class="card-num">Module 07</span>
-                    </div>
-                    <h3>Hash Functions</h3>
-                    <p>One-way functions for data integrity. Three security properties, the Birthday Attack, SHA-256 internals, HMAC, and password storage.</p>
-                    <div class="topic-tags">
-                        <span class="tag">SHA-256</span>
-                        <span class="tag">Collision Resistance</span>
-                        <span class="tag">Birthday Attack</span>
-                        <span class="tag">HMAC</span>
-                        <span class="tag">Merkle-Damgård</span>
-                    </div>
-                    <span class="src-badge src-chapter" style="margin-bottom:0.5rem">📖 Chapter 11</span>
-                    <div class="read-link">
-                        <span>View Study Notes</span>
-                        <span>→</span>
-                    </div>
-                </a>
-
-                <!-- Module 8: Digital Signatures -->
-                <a href="topics/8-digital-signatures.html"
-                   class="module-card" style="--card-accent: var(--cat4);">
-                    <div class="card-top">
-                        <div class="card-emoji">✍️</div>
-                        <span class="card-num">Module 08</span>
-                    </div>
-                    <h3>Digital Signatures</h3>
-                    <p>Providing authenticity, integrity, and non-repudiation. RSA signatures, DSA, ECDSA, and the critical nonce reuse vulnerability.</p>
-                    <div class="topic-tags">
-                        <span class="tag">RSA Signing</span>
-                        <span class="tag">DSA</span>
-                        <span class="tag">ECDSA</span>
-                        <span class="tag">Non-Repudiation</span>
-                    </div>
-                    <span class="src-badge src-chapter" style="margin-bottom:0.5rem">📖 Chapter 10</span>
-                    <div class="read-link">
-                        <span>View Study Notes</span>
-                        <span>→</span>
-                    </div>
-                </a>
-
-            </div>
-        </div>
-
-        <!-- ============================
-             CATEGORY 4: ADVANCED PROTOCOLS
-        ============================= -->
-        <div class="category-section">
-            <div class="category-header">
-                <div class="cat-icon" style="background: rgba(239,68,68,0.15);">🧩</div>
-                <div>
-                    <h2 style="color: #fca5a5;">Advanced Cryptographic Protocols</h2>
-                    <p style="font-size:0.82rem; color: var(--text-muted); margin:0;">Zero-knowledge proofs, identification protocols, and distributed key generation</p>
-                </div>
-                <span class="category-header cat-desc">Module 9</span>
-            </div>
-            <div class="module-grid">
-
-                <!-- Module 9: ZKP + Schnorr + DKG -->
-                <a href="topics/9-zkp-schnorr-dkg.html"
-                   class="module-card" style="--card-accent: var(--cat6);">
-                    <div class="card-top">
-                        <div class="card-emoji">🪄</div>
-                        <span class="card-num">Module 09</span>
-                    </div>
-                    <h3>Zero-Knowledge Proofs</h3>
-                    <p>Proving knowledge of a secret without revealing it. The Ali Baba Cave, ZKP's three properties, and real-world applications.</p>
-                    <div class="topic-tags">
-                        <span class="tag">Completeness</span>
-                        <span class="tag">Soundness</span>
-                        <span class="tag">Zero-Knowledge</span>
-                        <span class="tag">Ali Baba Cave</span>
-                    </div>
-                    <span class="src-badge src-notes" style="margin-bottom:0.5rem">📝 Handwritten Notes</span>
-                    <div class="read-link">
-                        <span>View Study Notes</span>
-                        <span>→</span>
-                    </div>
-                </a>
-
-                <a href="topics/9-zkp-schnorr-dkg.html#schnorr"
-                   class="module-card" style="--card-accent: var(--cat6);">
-                    <div class="card-top">
-                        <div class="card-emoji">🔏</div>
-                        <span class="card-num">Module 09b</span>
-                    </div>
-                    <h3>Schnorr's Identification Protocol</h3>
-                    <p>A practical 3-round interactive ZKP. Alice proves knowledge of her private key \( x \) to Bob using a random nonce commitment and EC arithmetic.</p>
-                    <div class="topic-tags">
-                        <span class="tag">Commitment R = r·G</span>
-                        <span class="tag">Challenge c</span>
-                        <span class="tag">Response s = cx + r</span>
-                        <span class="tag">ECDLP</span>
-                    </div>
-                    <span class="src-badge src-notes" style="margin-bottom:0.5rem">📝 Handwritten Notes</span>
-                    <div class="read-link">
-                        <span>View Study Notes</span>
-                        <span>→</span>
-                    </div>
-                </a>
-
-                <a href="topics/9-zkp-schnorr-dkg.html#dkg"
-                   class="module-card" style="--card-accent: var(--cat6);">
-                    <div class="card-top">
-                        <div class="card-emoji">🗝️</div>
-                        <span class="card-num">Module 09c</span>
-                    </div>
-                    <h3>Distributed Key Generation</h3>
-                    <p>Shamir's Secret Sharing and Lagrange Interpolation. Worked example: reconstructing a secret key from three user shares using modular arithmetic.</p>
-                    <div class="topic-tags">
-                        <span class="tag">Shamir Sharing</span>
-                        <span class="tag">Lagrange Interpolation</span>
-                        <span class="tag">(t,n)-Threshold</span>
-                        <span class="tag">Modular Arithmetic</span>
-                    </div>
-                    <span class="src-badge src-notes" style="margin-bottom:0.5rem">📝 Handwritten Notes</span>
-                    <div class="read-link">
-                        <span>View Study Notes</span>
-                        <span>→</span>
-                    </div>
-                </a>
-
-            </div>
-        </div>
-
-        <!-- ============================
-             CATEGORY 5: PAST PAPERS
-        ============================= -->
-        <div class="category-section">
-            <div class="category-header">
-                <div class="cat-icon" style="background: rgba(245,158,11,0.15);">📋</div>
-                <div>
-                    <h2 style="color: #fcd34d;">Past Class Tests & Papers</h2>
-                    <p style="font-size:0.82rem; color: var(--text-muted); margin:0;">Practice with real exam questions</p>
-                </div>
-                <span class="category-header cat-desc">CTs 3, 4 & Makeup</span>
-            </div>
-            <div class="module-grid">
-
-                <a href="Cryptography CT 3 set A.pdf" target="_blank"
-                   class="module-card" style="--card-accent: var(--gold);">
-                    <div class="card-top">
-                        <div class="card-emoji">📄</div>
-                        <span class="card-num">CT 3</span>
-                    </div>
-                    <h3>Class Test 3 — Set A</h3>
-                    <p>Covers modern block cipher concepts, DES structure, modes of operation, and related topics.</p>
-                    <div class="topic-tags">
-                        <span class="tag">Feistel / DES</span>
-                        <span class="tag">Modes of Operation</span>
-                    </div>
-                    <div class="read-link">
-                        <span>Open PDF</span>
-                        <span>↗</span>
-                    </div>
-                </a>
-
-                <a href="Cryptography CT 4 set A.pdf" target="_blank"
-                   class="module-card" style="--card-accent: var(--gold);">
-                    <div class="card-top">
-                        <div class="card-emoji">📄</div>
-                        <span class="card-num">CT 4</span>
-                    </div>
-                    <h3>Class Test 4 — Set A</h3>
-                    <p>Covers hash functions, digital signatures, key establishment, and asymmetric cryptography topics.</p>
-                    <div class="topic-tags">
-                        <span class="tag">Hash Functions</span>
-                        <span class="tag">Digital Signatures</span>
-                        <span class="tag">Key Establishment</span>
-                    </div>
-                    <div class="read-link">
-                        <span>Open PDF</span>
-                        <span>↗</span>
-                    </div>
-                </a>
-
-                <a href="Cryptography CT Makeup.pdf" target="_blank"
-                   class="module-card" style="--card-accent: var(--gold);">
-                    <div class="card-top">
-                        <div class="card-emoji">📄</div>
-                        <span class="card-num">Makeup</span>
-                    </div>
-                    <h3>Class Test Makeup Exam</h3>
-                    <p>A comprehensive makeup paper covering a range of topics from across the course syllabus.</p>
-                    <div class="topic-tags">
-                        <span class="tag">Mixed Topics</span>
-                        <span class="tag">Full Syllabus</span>
-                    </div>
-                    <div class="read-link">
-                        <span>Open PDF</span>
-                        <span>↗</span>
-                    </div>
-                </a>
-
-            </div>
+            <div class="sel-cta">View Final Notes →</div>
         </div>
 
     </div>
+</div>
 
-    <!-- ==================== FOOTER ==================== -->
-    <footer>
-        <p>CSE 4783 Cryptography Study Guide &nbsp;·&nbsp; United International University &nbsp;·&nbsp;
-           <a href="https://github.com/namaray/CSE-4783-Cryptography" target="_blank">GitHub Repository</a>
-        </p>
-    </footer>
+<!-- ========================= MIDTERM SECTION ========================= -->
+<div class="content-section" id="mid-section">
+
+    <div class="stats-row">
+        <div class="stat"><div class="stat-num">4</div><div class="stat-lbl">Modules</div></div>
+        <div class="stat"><div class="stat-num">20+</div><div class="stat-lbl">Topics</div></div>
+        <div class="stat"><div class="stat-num">2</div><div class="stat-lbl">Categories</div></div>
+    </div>
+
+    <!-- Category A: Classical Cryptography -->
+    <div class="category-section">
+        <div class="category-header">
+            <div class="cat-icon" style="background: rgba(14,165,233,0.12);">🏛️</div>
+            <div>
+                <h2 style="color:#7dd3fc;">Classical Cryptography</h2>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">Foundational ciphers, substitution & transposition</p>
+            </div>
+            <span class="cat-meta">Modules 1 – 2</span>
+        </div>
+        <div class="module-grid">
+
+            <a href="CSE-4783-Cryptography/topics/1-intro-and-classical-ciphers.html"
+               class="module-card" style="--card-accent: #0ea5e9;">
+                <div class="card-top">
+                    <div class="card-emoji">🔐</div>
+                    <span class="card-num">Module 01</span>
+                </div>
+                <h3>Intro & Classical Ciphers</h3>
+                <p>Cryptography terminology, symmetric vs asymmetric crypto, cryptanalysis attack models, and the full family of substitution ciphers.</p>
+                <div class="topic-tags">
+                    <span class="tag">Caesar Cipher</span>
+                    <span class="tag">Affine</span>
+                    <span class="tag">Vigenère</span>
+                    <span class="tag">Playfair</span>
+                    <span class="tag">Hill Cipher</span>
+                </div>
+                <div class="read-link"><span>View Study Notes</span><span>→</span></div>
+            </a>
+
+            <a href="CSE-4783-Cryptography/topics/2-transposition-and-pad.html"
+               class="module-card" style="--card-accent: #0ea5e9;">
+                <div class="card-top">
+                    <div class="card-emoji">🔀</div>
+                    <span class="card-num">Module 02</span>
+                </div>
+                <h3>Transposition & Pad Ciphers</h3>
+                <p>Keyless and keyed transposition ciphers, the unbreakable One-Time Pad, and the foundational building blocks of modern block ciphers.</p>
+                <div class="topic-tags">
+                    <span class="tag">Keyed Transposition</span>
+                    <span class="tag">One-Time Pad</span>
+                    <span class="tag">S-Box / P-Box</span>
+                    <span class="tag">Shannon's Theory</span>
+                </div>
+                <div class="read-link"><span>View Study Notes</span><span>→</span></div>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Category B: Modern Symmetric -->
+    <div class="category-section">
+        <div class="category-header">
+            <div class="cat-icon" style="background: rgba(14,165,233,0.12);">⚙️</div>
+            <div>
+                <h2 style="color:#7dd3fc;">Modern Symmetric Cryptography</h2>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">Block ciphers, DES, and modes of operation</p>
+            </div>
+            <span class="cat-meta">Modules 3 – 4</span>
+        </div>
+        <div class="module-grid">
+
+            <a href="CSE-4783-Cryptography/topics/3-feistel-and-des.html"
+               class="module-card" style="--card-accent: #38bdf8;">
+                <div class="card-top">
+                    <div class="card-emoji">🔩</div>
+                    <span class="card-num">Module 03</span>
+                </div>
+                <h3>Feistel Cipher & DES</h3>
+                <p>The Feistel architecture with mixers and swappers, the complete Data Encryption Standard, key generation, avalanche effect, and 3DES.</p>
+                <div class="topic-tags">
+                    <span class="tag">Feistel Network</span>
+                    <span class="tag">DES Structure</span>
+                    <span class="tag">F-Function</span>
+                    <span class="tag">Avalanche Effect</span>
+                    <span class="tag">3DES / MITM</span>
+                </div>
+                <div class="read-link"><span>View Study Notes</span><span>→</span></div>
+            </a>
+
+            <a href="CSE-4783-Cryptography/topics/4-modes-of-operation.html"
+               class="module-card" style="--card-accent: #38bdf8;">
+                <div class="card-top">
+                    <div class="card-emoji">🔄</div>
+                    <span class="card-num">Module 04</span>
+                </div>
+                <h3>Modes of Operation</h3>
+                <p>How block ciphers handle arbitrary-length messages. All five NIST modes compared with use cases, IV requirements, and error propagation.</p>
+                <div class="topic-tags">
+                    <span class="tag">ECB</span>
+                    <span class="tag">CBC</span>
+                    <span class="tag">CFB</span>
+                    <span class="tag">OFB</span>
+                    <span class="tag">CTR</span>
+                    <span class="tag">IV / Nonce</span>
+                </div>
+                <div class="read-link"><span>View Study Notes</span><span>→</span></div>
+            </a>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- ========================= FINAL SECTION ========================= -->
+<div class="content-section" id="fin-section">
+
+    <div class="stats-row">
+        <div class="stat"><div class="stat-num">5</div><div class="stat-lbl">Modules</div></div>
+        <div class="stat"><div class="stat-num">25+</div><div class="stat-lbl">Topics</div></div>
+        <div class="stat"><div class="stat-num">3</div><div class="stat-lbl">Past Papers</div></div>
+    </div>
+
+    <!-- Category A: Integrity, Auth & Concealment -->
+    <div class="category-section">
+        <div class="category-header">
+            <div class="cat-icon" style="background: rgba(124,58,237,0.12);">🛡️</div>
+            <div>
+                <h2 style="color:#c4b5fd;">Integrity, Authentication & Concealment</h2>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">Hash functions, digital signatures, keys, and steganography</p>
+            </div>
+            <span class="cat-meta">Modules 5 – 8</span>
+        </div>
+        <div class="module-grid">
+
+            <a href="topics/5-steganography.html"
+               class="module-card" style="--card-accent: #a78bfa;">
+                <div class="card-top">
+                    <div class="card-emoji">🕵️</div>
+                    <span class="card-num">Module 05</span>
+                </div>
+                <h3>Steganography</h3>
+                <p>Hiding secret messages inside innocent cover media. LSB technique for images, audio & text steganography, and steganalysis detection methods.</p>
+                <div class="topic-tags">
+                    <span class="tag">LSB Encoding</span>
+                    <span class="tag">Cover Medium</span>
+                    <span class="tag">Steganalysis</span>
+                    <span class="tag">Chi-Square Attack</span>
+                </div>
+                <span class="src-badge src-slide">📑 Slide 4</span>
+                <div class="read-link"><span>View Study Notes</span><span>→</span></div>
+            </a>
+
+            <a href="topics/6-key-establishment.html"
+               class="module-card" style="--card-accent: #a78bfa;">
+                <div class="card-top">
+                    <div class="card-emoji">🤝</div>
+                    <span class="card-num">Module 06</span>
+                </div>
+                <h3>Key Establishment</h3>
+                <p>Securely agreeing on keys over insecure channels. Diffie-Hellman key exchange, KDC, PKI certificates, and Elliptic Curve DH.</p>
+                <div class="topic-tags">
+                    <span class="tag">Diffie-Hellman</span>
+                    <span class="tag">ECDH</span>
+                    <span class="tag">PKI / X.509</span>
+                    <span class="tag">KDC</span>
+                    <span class="tag">MITM Attack</span>
+                </div>
+                <span class="src-badge src-slide">📑 Slide 6</span>
+                <div class="read-link"><span>View Study Notes</span><span>→</span></div>
+            </a>
+
+            <a href="topics/7-hash-functions.html"
+               class="module-card" style="--card-accent: #a78bfa;">
+                <div class="card-top">
+                    <div class="card-emoji">#️⃣</div>
+                    <span class="card-num">Module 07</span>
+                </div>
+                <h3>Hash Functions</h3>
+                <p>One-way functions for data integrity. Three security properties, Birthday Attack, SHA-256 internals, HMAC, and password storage.</p>
+                <div class="topic-tags">
+                    <span class="tag">SHA-256</span>
+                    <span class="tag">Collision Resistance</span>
+                    <span class="tag">Birthday Attack</span>
+                    <span class="tag">HMAC</span>
+                    <span class="tag">Merkle-Damgård</span>
+                </div>
+                <span class="src-badge src-chapter">📖 Chapter 11</span>
+                <div class="read-link"><span>View Study Notes</span><span>→</span></div>
+            </a>
+
+            <a href="topics/8-digital-signatures.html"
+               class="module-card" style="--card-accent: #a78bfa;">
+                <div class="card-top">
+                    <div class="card-emoji">✍️</div>
+                    <span class="card-num">Module 08</span>
+                </div>
+                <h3>Digital Signatures</h3>
+                <p>Authenticity, integrity, and non-repudiation. RSA signatures, DSA, ECDSA, and the catastrophic nonce reuse vulnerability.</p>
+                <div class="topic-tags">
+                    <span class="tag">RSA Signing</span>
+                    <span class="tag">DSA</span>
+                    <span class="tag">ECDSA</span>
+                    <span class="tag">Non-Repudiation</span>
+                </div>
+                <span class="src-badge src-chapter">📖 Chapter 10</span>
+                <div class="read-link"><span>View Study Notes</span><span>→</span></div>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Category B: Advanced Protocols -->
+    <div class="category-section">
+        <div class="category-header">
+            <div class="cat-icon" style="background: rgba(124,58,237,0.12);">🧩</div>
+            <div>
+                <h2 style="color:#c4b5fd;">Advanced Cryptographic Protocols</h2>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">Zero-knowledge proofs, identification protocols, and distributed key generation</p>
+            </div>
+            <span class="cat-meta">Module 9</span>
+        </div>
+        <div class="module-grid">
+
+            <a href="topics/9-zkp-schnorr-dkg.html"
+               class="module-card" style="--card-accent: #7c3aed;">
+                <div class="card-top">
+                    <div class="card-emoji">🪄</div>
+                    <span class="card-num">Module 09a</span>
+                </div>
+                <h3>Zero-Knowledge Proofs</h3>
+                <p>Proving knowledge of a secret without revealing it. The Ali Baba Cave analogy and ZKP's three properties: Completeness, Soundness, Zero-Knowledge.</p>
+                <div class="topic-tags">
+                    <span class="tag">Completeness</span>
+                    <span class="tag">Soundness</span>
+                    <span class="tag">Ali Baba Cave</span>
+                </div>
+                <span class="src-badge src-notes">📝 Handwritten Notes</span>
+                <div class="read-link"><span>View Study Notes</span><span>→</span></div>
+            </a>
+
+            <a href="topics/9-zkp-schnorr-dkg.html"
+               class="module-card" style="--card-accent: #7c3aed;">
+                <div class="card-top">
+                    <div class="card-emoji">🔏</div>
+                    <span class="card-num">Module 09b</span>
+                </div>
+                <h3>Schnorr's Identification Protocol</h3>
+                <p>A practical 3-round interactive ZKP. Alice proves knowledge of private key x to Bob using commitment R = r·G, challenge c, and response s = cx + r.</p>
+                <div class="topic-tags">
+                    <span class="tag">Commitment</span>
+                    <span class="tag">Challenge</span>
+                    <span class="tag">Response</span>
+                    <span class="tag">ECDLP</span>
+                </div>
+                <span class="src-badge src-notes">📝 Handwritten Notes</span>
+                <div class="read-link"><span>View Study Notes</span><span>→</span></div>
+            </a>
+
+            <a href="topics/9-zkp-schnorr-dkg.html"
+               class="module-card" style="--card-accent: #7c3aed;">
+                <div class="card-top">
+                    <div class="card-emoji">🗝️</div>
+                    <span class="card-num">Module 09c</span>
+                </div>
+                <h3>Distributed Key Generation</h3>
+                <p>Shamir's Secret Sharing and Lagrange Interpolation. Worked example: reconstructing a secret key from three shares modulo 251.</p>
+                <div class="topic-tags">
+                    <span class="tag">Shamir Sharing</span>
+                    <span class="tag">Lagrange Interpolation</span>
+                    <span class="tag">(t,n)-Threshold</span>
+                </div>
+                <span class="src-badge src-notes">📝 Handwritten Notes</span>
+                <div class="read-link"><span>View Study Notes</span><span>→</span></div>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Category C: Past Papers -->
+    <div class="category-section">
+        <div class="category-header">
+            <div class="cat-icon" style="background: rgba(245,158,11,0.12);">📋</div>
+            <div>
+                <h2 style="color:#fcd34d;">Past Class Tests & Papers</h2>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">Practice with real exam questions</p>
+            </div>
+            <span class="cat-meta">CTs 3, 4 & Makeup</span>
+        </div>
+        <div class="module-grid">
+
+            <a href="Cryptography CT 3 set A.pdf" target="_blank"
+               class="module-card" style="--card-accent: #f59e0b;">
+                <div class="card-top">
+                    <div class="card-emoji">📄</div>
+                    <span class="card-num">CT 3</span>
+                </div>
+                <h3>Class Test 3 — Set A</h3>
+                <p>Covers modern block cipher concepts, DES structure, modes of operation, and related topics.</p>
+                <div class="topic-tags">
+                    <span class="tag">Feistel / DES</span>
+                    <span class="tag">Modes of Operation</span>
+                </div>
+                <div class="read-link"><span>Open PDF</span><span>↗</span></div>
+            </a>
+
+            <a href="Cryptography CT 4 set A.pdf" target="_blank"
+               class="module-card" style="--card-accent: #f59e0b;">
+                <div class="card-top">
+                    <div class="card-emoji">📄</div>
+                    <span class="card-num">CT 4</span>
+                </div>
+                <h3>Class Test 4 — Set A</h3>
+                <p>Covers hash functions, digital signatures, key establishment, and asymmetric cryptography topics.</p>
+                <div class="topic-tags">
+                    <span class="tag">Hash Functions</span>
+                    <span class="tag">Digital Signatures</span>
+                    <span class="tag">Key Establishment</span>
+                </div>
+                <div class="read-link"><span>Open PDF</span><span>↗</span></div>
+            </a>
+
+            <a href="Cryptography CT Makeup.pdf" target="_blank"
+               class="module-card" style="--card-accent: #f59e0b;">
+                <div class="card-top">
+                    <div class="card-emoji">📄</div>
+                    <span class="card-num">Makeup</span>
+                </div>
+                <h3>Class Test Makeup Exam</h3>
+                <p>A comprehensive makeup paper covering a range of topics from across the course syllabus.</p>
+                <div class="topic-tags">
+                    <span class="tag">Mixed Topics</span>
+                    <span class="tag">Full Syllabus</span>
+                </div>
+                <div class="read-link"><span>Open PDF</span><span>↗</span></div>
+            </a>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- ========================= FOOTER ========================= -->
+<footer>
+    <p>CSE 4783 Cryptography Study Guide &nbsp;·&nbsp; United International University &nbsp;·&nbsp;
+       <a href="https://github.com/namaray/CSE-4783-Cryptography" target="_blank">GitHub Repository</a>
+    </p>
+</footer>
+
+<!-- ========================= JAVASCRIPT ========================= -->
+<script>
+    let current = null;
+
+    function showSection(which) {
+        current = which;
+
+        // Hide selector with animation
+        const sel = document.getElementById('selector');
+        sel.classList.add('hidden');
+
+        // Show back button & pill
+        document.getElementById('back-btn').classList.add('visible');
+        document.getElementById('section-pill-mid').classList.toggle('visible', which === 'mid');
+        document.getElementById('section-pill-fin').classList.toggle('visible', which === 'fin');
+        document.getElementById('header-sub').style.display = 'none';
+
+        // Show content section
+        const sec = document.getElementById(which + '-section');
+        sec.classList.add('active');
+        // Trigger transition on next frame
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => sec.classList.add('visible'));
+        });
+
+        // Scroll to top of content smoothly
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goBack() {
+        if (!current) return;
+
+        // Hide active section
+        const sec = document.getElementById(current + '-section');
+        sec.classList.remove('visible');
+        setTimeout(() => sec.classList.remove('active'), 350);
+
+        // Hide back button & pills
+        document.getElementById('back-btn').classList.remove('visible');
+        document.getElementById('section-pill-mid').classList.remove('visible');
+        document.getElementById('section-pill-fin').classList.remove('visible');
+        document.getElementById('header-sub').style.display = '';
+
+        // Show selector again
+        const sel = document.getElementById('selector');
+        sel.classList.remove('hidden');
+
+        current = null;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
 
 </body>
 </html>
