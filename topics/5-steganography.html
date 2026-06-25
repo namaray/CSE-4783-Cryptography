@@ -178,8 +178,9 @@
         <p>Two metrics measure the quality of the embedding. Cover image is \( I \), stego image is \( S \), dimensions \( w \times h \).</p>
         <h3>Volume of Embedded Bits</h3>
         <div class="formula-box">
-            \( \text{Payload} = \text{Total embedded bits} \) <br><br>
-            \( \text{Embedding Capacity (bpp)} = \dfrac{\text{Payload}}{w \times h} \)
+            \( \text{Payload} = \text{Total embedded bits} \) <br>
+            <strong>For PEH:</strong> \( \text{Maximum Payload} = h_1 + h_2 \) (frequencies of the two peak errors) <br><br>
+            \( \text{Embedding Capacity (bpp)} = \dfrac{\text{Payload}}{w \times h} = \dfrac{h_1 + h_2}{w \times h} \)
         </div>
         <h3>Stego Image Quality</h3>
         <div class="formula-box">
