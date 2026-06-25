@@ -215,6 +215,8 @@
         <p>Each pixel \( I_i \) is predicted as a <strong>weighted average of its 4 neighbours</strong> (Top, Right, Bottom, Left):</p>
         <div class="formula-box">
             \( P_i = \sum_{j \in \{\text{Top, Right, Bottom, Left}\}} w_j \cdot I_j \)
+            <br><br>
+            <strong>Expanded:</strong> \( P_i = (w_{\text{top}} \cdot I_{\text{top}}) + (w_{\text{right}} \cdot I_{\text{right}}) + (w_{\text{bottom}} \cdot I_{\text{bottom}}) + (w_{\text{left}} \cdot I_{\text{left}}) \)
         </div>
 
         <div class="pixel-grid-wrap">
@@ -233,7 +235,7 @@
                 </div>
             </div>
         </div>
-        <p>Weights \( w_j \) are chosen to minimise prediction error for the image type (e.g., \( w = 0.25 \) for each neighbour gives a simple average).</p>
+        <p>Weights \( w_j \) are chosen such that they sum to 1 (\( \sum w_j = 1 \)). For example, if all weights are equal (\( w = 0.25 \)), the formula simplifies to a direct average: \( P_i = \frac{I_{\text{top}} + I_{\text{right}} + I_{\text{bottom}} + I_{\text{left}}}{4} \).</p>
 
         <h3>Method 2: Block Pixel Prediction (Hong W. et al., 2010)</h3>
         <p>Instead of relying on adjacent pixels, the image is divided into non-overlapping blocks (e.g., 3×3). Within each block, the <strong>centre pixel</strong> \( c_i \) acts as the primary reference to predict its surrounding 8 <strong>satellite pixels</strong> \( p_{i,j} \). The prediction also uses the centre pixels of adjacent blocks (\( c_i^L, c_i^T, c_i^R, c_i^B \)).</p>
