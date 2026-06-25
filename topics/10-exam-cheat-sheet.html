@@ -107,6 +107,25 @@
             </div>
         </div>
 
+        <!-- ================= MOD 5.5 ================= -->
+        <div class="card">
+            <h2 class="c5" style="color:#8b5cf6; border-color:#8b5cf6;">Module 5.5: Shor's Algorithm</h2>
+            <p><strong>Goal:</strong> Find factors of \( N \) in polynomial time using a quantum computer.</p>
+            
+            <h3>Order Finding (Key Idea)</h3>
+            <div class="formula-box" style="background:#f5f3ff; border-color:#8b5cf6;">
+                Order \( r \) is the smallest positive number where:<br>
+                \( x^r \equiv 1 \pmod N \)
+            </div>
+            
+            <h3>Factorization Steps</h3>
+            <ol>
+                <li>Choose random \( x \). If \( d = \gcd(x, N) \ge 2 \), return factors \( d \) and \( N/d \).</li>
+                <li>Find order \( r \) such that \( x^r \equiv 1 \pmod N \).</li>
+                <li>If \( r \) is even and \( d = \gcd(x^{r/2}-1, N) \ge 2 \), return factors \( d \) and \( N/d \).</li>
+            </ol>
+        </div>
+
         <!-- ================= MOD 6 ================= -->
         <div class="card">
             <h2 class="c6">Module 6: Key Establishment</h2>
