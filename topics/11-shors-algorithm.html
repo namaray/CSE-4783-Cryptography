@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shor's Factorization Algorithm | CSE 4783</title>
-    <meta name="description" content="Study notes on Shor's Factorization Algorithm and its impact on modern cryptography.">
+    <meta name="description" content="Study notes on Breaking Cryptography using Shor's Factorization.">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         :root {
             --primary: #1a1a2e;
-            --accent: #8b5cf6; /* purple for quantum */
+            --accent: #8b5cf6; 
             --accent-light: #c4b5fd;
             --bg: #f5f3ff;
             --card-bg: #ffffff;
@@ -21,6 +21,8 @@
             --formula-border: #8b5cf6;
             --danger-bg: #fef2f2;
             --danger-border: #ef4444;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
         }
         * { box-sizing: border-box; }
         body { font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); line-height: 1.7; }
@@ -38,8 +40,9 @@
         .card:hover { box-shadow: 0 4px 24px rgba(139,92,246,0.12); }
         h2 { color: var(--primary); font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-top: 0; }
         h3 { color: var(--accent); margin-top: 1.5rem; font-weight: 600; font-size: 1.1rem; }
-        .formula-box { background: var(--formula-bg); border-left: 4px solid var(--formula-border); padding: 1rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; font-size: 1.05rem; }
+        .formula-box { background: var(--formula-bg); border-left: 4px solid var(--formula-border); padding: 1rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; font-size: 1.05rem; overflow-x: auto;}
         .danger-box { background: var(--danger-bg); border-left: 4px solid var(--danger-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        .code-block { background: var(--code-bg); color: var(--code-text); padding: 1.5rem; border-radius: 8px; font-family: 'Courier New', Courier, monospace; overflow-x: auto; margin: 1rem 0; line-height: 1.5; font-size: 0.95rem; }
         ul, ol { padding-left: 1.5rem; }
         li { margin-bottom: 0.4rem; }
         footer { text-align: center; padding: 2rem; background: var(--primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
@@ -48,63 +51,95 @@
 <body>
 
     <header>
-        <h1>Module 5: Shor's Algorithm</h1>
-        <p>Quantum computing's threat to modern cryptography</p>
+        <h1>Module 5: Shor's Factorization Algorithm</h1>
+        <p>Breaking Cryptography using Shor's Factorization</p>
         <a href="../index.html" class="nav-link">← Back to Home</a>
     </header>
 
     <div class="container">
 
         <div class="card">
-            <h2>1. What is Shor's Algorithm?</h2>
-            <p><strong>Shor's Algorithm</strong> is a quantum computer algorithm formulated by Peter Shor in 1994. It is designed to find the prime factors of an integer \( N \).</p>
-            <p>While classical computers take <em>sub-exponential</em> time to factor large numbers (using algorithms like the General Number Field Sieve), Shor's algorithm runs in <strong>polynomial time</strong> on a quantum computer. This means it is exponentially faster than the most efficient known classical factoring algorithm.</p>
-        </div>
-
-        <div class="card">
-            <h2>2. The Threat to Cryptography</h2>
-            <p>Most modern public-key cryptography relies on mathematical problems that are easy to compute in one direction but extremely difficult to reverse on classical computers.</p>
-            <ul>
-                <li><strong>RSA Encryption:</strong> Relies on the difficulty of integer factorization (finding \( p \) and \( q \) from \( N \)).</li>
-                <li><strong>Diffie-Hellman & DSA/ECDSA:</strong> Relies on the difficulty of solving the Discrete Logarithm Problem (DLP).</li>
-            </ul>
+            <h2>1. Introduction</h2>
+            <p>Let \( N \) be a number composed of two prime numbers \( u \) and \( v \).</p>
+            <p>Shor's algorithm finds the factors of \( N \) in <strong>polynomial time</strong>. In classical computation, it takes <em>exponential time</em>.</p>
             <div class="danger-box">
-                <strong>🚨 The Quantum Threat:</strong> Shor's Algorithm can solve BOTH integer factorization and the discrete logarithm problem in polynomial time. If a sufficiently large, stable quantum computer is ever built, RSA, Diffie-Hellman, and Elliptic Curve Cryptography will be completely broken.
+                <strong>🚨 Impact:</strong> RSA security is based upon a one-way function: integer factorization.
             </div>
-            <p>This threat has sparked the massive transition towards <strong>Post-Quantum Cryptography (PQC)</strong>, which involves mathematical problems (like lattice-based cryptography) that even quantum computers cannot solve efficiently.</p>
+            
+            <h3>Background: Modular Arithmetic & Order of a Group</h3>
+            <p><strong>Order:</strong> Given \( N \) and \( x \), the order is the smallest positive number \( r \) such that:</p>
+            <div class="formula-box">
+                \( x^r \equiv 1 \pmod N \)
+            </div>
+            <p><em>Example:</em> Let \( N = 17, x = 2 \). What is \( r \)?<br>
+            \( 2^r \equiv 1 \pmod{17} \)<br>
+            \( 2^8 \equiv 1 \pmod{17} \), so \( r = 8 \).</p>
+            <p>The algorithm of finding the order on a classical computer is exponential.</p>
         </div>
 
         <div class="card">
-            <h2>3. How Shor's Algorithm Works (High-Level)</h2>
-            <p>The algorithm consists of two main parts: a classical reduction step and a quantum period-finding step.</p>
+            <h2>2. Key Idea of Shor's Algorithm</h2>
+            <p><strong>Input:</strong> \( N \)<br>
+            <strong>Find:</strong> \( u, v \) such that \( N = u \times v \)</p>
             
-            <h3>Part 1: Classical Reduction</h3>
-            <p>The factorization problem is reduced to the problem of finding the period of a function.</p>
-            <ol>
-                <li>Choose a random number \( a < N \).</li>
-                <li>Compute the greatest common divisor \( \gcd(a, N) \). If it is greater than 1, we got extremely lucky and have already found a non-trivial factor of \( N \). We are done.</li>
-                <li>If \( \gcd(a, N) = 1 \), then \( a \) and \( N \) are coprime. Proceed to the quantum step.</li>
-            </ol>
-
-            <h3>Part 2: Quantum Period Finding</h3>
-            <p>We need to find the period \( r \) of the modular exponentiation function:</p>
+            <p>It takes a random number \( x \) and it finds the order \( r \) such that \( x^r \equiv 1 \pmod N \).</p>
             <div class="formula-box">
-                \( f(x) = a^x \bmod N \)
+                \( \Rightarrow (x^{r/2})^2 - (1)^2 \equiv 0 \pmod N \) &nbsp;&nbsp;&nbsp; <em>(if \( r \) is even)</em><br><br>
+                \( \Rightarrow (x^{r/2} - 1)(x^{r/2} + 1) \equiv 0 \pmod N \)
             </div>
-            <p>The period \( r \) is the smallest positive integer such that \( a^r \equiv 1 \pmod N \). Finding \( r \) classically is too slow, but a quantum computer can find it quickly using a <strong>Quantum Fourier Transform (QFT)</strong>.</p>
 
-            <h3>Part 3: Classical Factor Extraction</h3>
-            <p>Once the quantum computer finds the period \( r \):</p>
-            <ol>
-                <li>If \( r \) is odd, the algorithm fails. Go back to step 1 and pick a new \( a \).</li>
-                <li>If \( a^{r/2} \equiv -1 \pmod N \), the algorithm fails. Pick a new \( a \).</li>
-                <li>Otherwise, both \( (a^{r/2} - 1) \) and \( (a^{r/2} + 1) \) share a factor with \( N \).</li>
-            </ol>
-            <p>We can compute the prime factors of \( N \) using the classical Euclidean algorithm:</p>
+            <p><strong>Trivial Roots:</strong><br>
+            \( x^{r/2} = \pm 1 \)</p>
+            
+            <p><strong>Non-trivial Roots:</strong><br>
+            \( x^{r/2} \neq \pm 1 \)<br>
+            If these square roots are non-trivial, then they will be multiples of \( u \) and \( v \). Then:</p>
+            <ul>
+                <li>\( (x^{r/2} - 1) \) might be \( a \times u \)</li>
+                <li>\( (x^{r/2} + 1) \) might be \( b \times v \)</li>
+            </ul>
+            <p>Therefore, we can find the factors using the Greatest Common Divisor (GCD):</p>
             <div class="formula-box">
-                Factor 1 = \( \gcd(a^{r/2} + 1, N) \) <br>
-                Factor 2 = \( \gcd(a^{r/2} - 1, N) \)
+                \( \gcd(x^{r/2} - 1, N) = u \)<br>
+                \( v = \frac{N}{u} \)
             </div>
+        </div>
+
+        <div class="card">
+            <h2>3. Shor's Algorithm (Pseudocode)</h2>
+            <div class="code-block">
+while (true) {
+    1. choose x &isin; {2, N-1}
+    
+    2. if (d = gcd(x, N) &ge; 2) {
+           u = d, v = N / u
+           return u, v
+       }
+       
+    3. find r such that x^r &equiv; 1 mod N
+    
+    4. if (r is even && d = gcd(x^{r/2} - 1, N) &ge; 2) {
+    5.     return u = d, v = N / u
+       }
+}
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. Example Walkthrough</h2>
+            <p>Let's say we want to factor \( N = 221 \).</p>
+            
+            <p><strong>Step 1:</strong> Choose \( x = 5 \)</p>
+            <p><strong>Step 2:</strong> \( \gcd(5, 221) = 1 \) <em>(Proceed to step 3)</em></p>
+            <p><strong>Step 3:</strong> Find \( r \) such that \( 5^r \pmod{221} \equiv 1 \)<br>
+            \( r = 16 \)</p>
+            <p><strong>Step 4:</strong> Check if \( r \) is even (16 is even). Compute \( d \):<br>
+            \( d = \gcd(5^8 - 1, 221) \)<br>
+            \( d = 13 \)<br>
+            So, \( u = 13 \).</p>
+            <p><strong>Step 5:</strong> Compute \( v \):<br>
+            \( v = \frac{N}{u} = \frac{221}{13} = 17 \)</p>
+            <p><strong>Result:</strong> Factors of 221 are <strong>13</strong> and <strong>17</strong>.</p>
         </div>
 
     </div>
