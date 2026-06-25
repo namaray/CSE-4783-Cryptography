@@ -219,24 +219,30 @@
         <p>Weights \( w_j \) are chosen to minimise prediction error for the image type (e.g., \( w = 0.25 \) for each neighbour gives a simple average).</p>
 
         <h3>Method 2: Block Pixel Prediction (Hong W. et al., 2010)</h3>
-        <p>Pixels are predicted from a <strong>centre pixel</strong> \( C_i \) and surrounding <strong>satellite pixels</strong> \( p_{i,1} \ldots p_{i,8} \) within a block:</p>
+        <p>Instead of relying on adjacent pixels, the image is divided into non-overlapping blocks (e.g., 3×3). Within each block, the <strong>centre pixel</strong> \( C_i \) acts as the absolute reference to predict its surrounding 8 <strong>satellite pixels</strong> \( p_{i,j} \).</p>
+        
+        <div class="formula-box">
+            Prediction: \( P_{i,j} = C_i \) <br>
+            Prediction Error: \( e_{i,j} = p_{i,j} - C_i \) &nbsp;&nbsp; for \( j \in \{1, 2, \dots, 8\} \)
+        </div>
+
         <div class="pixel-grid-wrap">
             <div>
                 <div class="grid-label">Block Layout (3×3)</div>
                 <div class="g3">
-                    <div class="gcell satellite">p<sub>i,1</sub></div>
                     <div class="gcell satellite">p<sub>i,2</sub></div>
                     <div class="gcell satellite">p<sub>i,3</sub></div>
-                    <div class="gcell satellite">p<sub>i,8</sub></div>
-                    <div class="gcell centre">C<sub>i</sub></div>
                     <div class="gcell satellite">p<sub>i,4</sub></div>
+                    <div class="gcell satellite">p<sub>i,1</sub></div>
+                    <div class="gcell centre">C<sub>i</sub></div>
+                    <div class="gcell satellite">p<sub>i,5</sub></div>
+                    <div class="gcell satellite">p<sub>i,8</sub></div>
                     <div class="gcell satellite">p<sub>i,7</sub></div>
                     <div class="gcell satellite">p<sub>i,6</sub></div>
-                    <div class="gcell satellite">p<sub>i,5</sub></div>
                 </div>
             </div>
         </div>
-        <p>Each satellite pixel \( p_{i,j} \) is predicted from the centre pixel \( C_i \). The image is divided into non-overlapping blocks first.</p>
+        <p>The centre pixel \( C_i \) remains unchanged during the entire embedding process. By predicting satellite pixels directly from the centre, this method simplifies the prediction step and allows up to 8 bits to be embedded per 3×3 block while maintaining high reversibility.</p>
     </div>
 
     <!-- =================== 6. PREDICTION ERROR =================== -->
