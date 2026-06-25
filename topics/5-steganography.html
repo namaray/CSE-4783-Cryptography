@@ -139,6 +139,22 @@
             <li><strong>Payload:</strong> The total number of bits embedded in the image.</li>
             <li><strong>Embedding Capacity (bpp):</strong> Bits Per Pixel — how many bits can be hidden per pixel on average.</li>
         </ul>
+        
+        <h3>Choice of Cover Media</h3>
+        <p>Different types of digital files can be used as the cover medium, but they perform differently for steganography:</p>
+        <table>
+            <tr><th>Media Type</th><th>Characteristics for Steganography</th></tr>
+            <tr><td><strong>Text</strong></td><td>Has very little redundant data. Any alterations or distortions are easily realizable (visible) to the reader.</td></tr>
+            <tr><td><strong>Audio / Video</strong></td><td>Bigger file size offers massive capacity, but makes it less flexible and heavier for frequent communication/transmission.</td></tr>
+            <tr><td><strong>Image</strong> <em>(Most Popular)</em></td><td>
+                <ul>
+                    <li>Has abundant redundant information to hide data.</li>
+                    <li>Suitable size for frequent transmission over networks.</li>
+                    <li>Big enough to hold a meaningful amount of embedded data.</li>
+                    <li>Smaller distortions (like modifying LSBs or small errors) are not sensible to the human visual system.</li>
+                </ul>
+            </td></tr>
+        </table>
     </div>
 
     <!-- =================== 2. DOMAINS =================== -->
