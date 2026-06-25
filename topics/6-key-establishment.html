@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6. Key Establishment | CSE 4783</title>
+    <meta name="description" content="Study notes on Key Establishment protocols for CSE 4783 Cryptography.">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root {
+            --primary: #1a1a2e;
+            --accent: #0ea5e9;
+            --accent-light: #7dd3fc;
+            --bg: #f0f9ff;
+            --card-bg: #ffffff;
+            --text: #0c1a2e;
+            --muted: #6b7280;
+            --border: #e0f2fe;
+            --formula-bg: #e0f2fe;
+            --formula-border: #0ea5e9;
+            --warning-bg: #fef3c7;
+            --warning-border: #f59e0b;
+            --tip-bg: #d1fae5;
+            --tip-border: #059669;
+            --danger-bg: #fee2e2;
+            --danger-border: #dc2626;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); line-height: 1.7; }
+        header {
+            background: linear-gradient(135deg, #0c1a2e 0%, #0369a1 100%);
+            color: white; padding: 2.5rem 1rem; text-align: center;
+            border-bottom: 4px solid var(--accent);
+        }
+        header h1 { margin: 0; font-size: 2.2rem; font-weight: 700; }
+        header p { color: var(--accent-light); margin: 0.5rem 0 0; }
+        .nav-link { display: inline-block; margin-top: 1rem; color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: color 0.2s; }
+        .nav-link:hover { color: white; }
+        .container { max-width: 920px; margin: 2.5rem auto; padding: 0 1.5rem; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 16px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+        .card:hover { box-shadow: 0 4px 24px rgba(14,165,233,0.12); }
+        h2 { color: var(--primary); font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-top: 0; }
+        h3 { color: var(--accent); margin-top: 1.5rem; font-weight: 600; font-size: 1.1rem; }
+        .formula-box { background: var(--formula-bg); border-left: 4px solid var(--formula-border); padding: 1rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; font-size: 1.05rem; }
+        .tip-box { background: var(--tip-bg); border-left: 4px solid var(--tip-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        .warning-box { background: var(--warning-bg); border-left: 4px solid var(--warning-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        .danger-box { background: var(--danger-bg); border-left: 4px solid var(--danger-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; }
+        th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
+        th { background: var(--primary); color: white; font-weight: 600; }
+        tr:nth-child(even) td { background: #f0f9ff; }
+        ul, ol { padding-left: 1.5rem; }
+        li { margin-bottom: 0.4rem; }
+        .protocol-steps {
+            counter-reset: step;
+            padding-left: 0;
+            list-style: none;
+        }
+        .protocol-steps li {
+            position: relative;
+            padding: 0.6rem 0.6rem 0.6rem 3rem;
+            margin-bottom: 0.6rem;
+            background: #f8fbff;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+        .protocol-steps li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 0.8rem;
+            top: 50%; transform: translateY(-50%);
+            background: var(--accent);
+            color: white;
+            width: 1.5rem; height: 1.5rem;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 700;
+        }
+        footer { text-align: center; padding: 2rem; background: var(--primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Module 6: Key Establishment</h1>
+        <p>Securely agreeing on cryptographic keys between parties</p>
+        <a href="../index.html" class="nav-link">← Back to Home</a>
+    </header>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>1. The Key Distribution Problem</h2>
+            <p>For two parties to communicate securely using symmetric cryptography, they first need to agree on a shared secret key. But how can they securely exchange this key over an insecure channel — without an adversary intercepting it?</p>
+            <ul>
+                <li><strong>Key Distribution:</strong> Getting a key from the generator to the user(s) securely.</li>
+                <li><strong>Key Agreement:</strong> A protocol by which two or more parties jointly establish a shared secret without either party choosing the key alone.</li>
+                <li><strong>Key Transport:</strong> One party generates a key and securely sends it to another party.</li>
+            </ul>
+            <div class="warning-box">
+                <strong>⚠️ Problem with Symmetric Key Distribution:</strong> For <em>n</em> users, you need \( \frac{n(n-1)}{2} \) unique keys for all pairs to communicate privately. This becomes unmanageable for large networks.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. Diffie-Hellman Key Exchange (DHKE)</h2>
+            <p>Proposed by Whitfield Diffie and Martin Hellman in 1976. The first practical protocol for establishing a <strong>shared secret over a public channel</strong>. It is based on the computational difficulty of the <strong>Discrete Logarithm Problem</strong>.</p>
+
+            <h3>Setup (Public Parameters)</h3>
+            <ul>
+                <li>A large prime number \( p \)</li>
+                <li>A generator \( g \) (a primitive root modulo \( p \)), where \( 1 < g < p \)</li>
+            </ul>
+
+            <h3>Protocol Steps</h3>
+            <ol class="protocol-steps">
+                <li>Alice chooses a secret random integer \( a \) and computes \( A = g^a \pmod{p} \). She sends \( A \) to Bob.</li>
+                <li>Bob chooses a secret random integer \( b \) and computes \( B = g^b \pmod{p} \). He sends \( B \) to Alice.</li>
+                <li>Alice computes the shared secret: \( K = B^a \pmod{p} = g^{ba} \pmod{p} \)</li>
+                <li>Bob computes the shared secret: \( K = A^b \pmod{p} = g^{ab} \pmod{p} \)</li>
+                <li>Both arrive at the same shared key \( K \) since \( g^{ab} = g^{ba} \).</li>
+            </ol>
+
+            <div class="formula-box">
+                Public: \( p, g \) &nbsp;&nbsp;&nbsp; Alice's secret: \( a \) &nbsp;&nbsp;&nbsp; Bob's secret: \( b \) <br><br>
+                Shared Key: \( K = g^{ab} \pmod{p} \)
+            </div>
+
+            <h3>Security: The Discrete Logarithm Problem</h3>
+            <p>An eavesdropper Eve sees \( p, g, A = g^a \pmod p, B = g^b \pmod p \). To find the shared secret, she must compute either \( a \) or \( b \) from \( A \) or \( B \), which is the <strong>Discrete Logarithm Problem</strong>. No efficient algorithm is known for large primes.</p>
+
+            <div class="danger-box">
+                <strong>🚨 Vulnerability: Man-in-the-Middle (MITM) Attack!</strong><br>
+                DHKE does not provide authentication. Eve can intercept the exchange, pose as Bob to Alice (establishing key \( K_1 = g^{ae} \)) and pose as Alice to Bob (establishing key \( K_2 = g^{be} \)), reading and re-encrypting all traffic. DHKE must be combined with authentication (e.g., digital signatures) to be secure.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>3. Key Distribution Center (KDC)</h2>
+            <p>A trusted third party that helps manage key distribution in a network with many users. Each user shares a unique master key with the KDC.</p>
+
+            <h3>Needham-Schroeder Protocol (Simplified)</h3>
+            <p>When Alice wants to communicate with Bob:</p>
+            <ol class="protocol-steps">
+                <li>Alice sends her ID, Bob's ID, and a nonce \( N_A \) to the KDC.</li>
+                <li>KDC generates a session key \( K_{AB} \) and sends Alice: \( E_{K_A}(K_{AB}, N_A, B, E_{K_B}(K_{AB}, A)) \). The portion encrypted with Bob's master key is a "ticket".</li>
+                <li>Alice decrypts her portion to get \( K_{AB} \) and the ticket. She forwards the ticket to Bob.</li>
+                <li>Bob decrypts the ticket with his master key \( K_B \) to get \( K_{AB} \) and Alice's identity.</li>
+                <li>Alice and Bob now share \( K_{AB} \) and can communicate securely.</li>
+            </ol>
+            <div class="warning-box">
+                <strong>⚠️ KDC Limitations:</strong> Single point of failure. If the KDC is compromised, all communications are exposed. Requires a secure channel to establish master keys with all users.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. Public Key Infrastructure (PKI) & Certificates</h2>
+            <p>Public key cryptography solves the key distribution problem — anyone can use Alice's public key. But how do you verify the public key you received <em>really</em> belongs to Alice and not an attacker?</p>
+            <h3>Digital Certificates</h3>
+            <p>A digital certificate is a document that binds a public key to an identity (name, organization, etc.). It is digitally signed by a trusted <strong>Certificate Authority (CA)</strong>.</p>
+            <ul>
+                <li><strong>Certificate Contents:</strong> Subject name, Subject's public key, Issuer (CA) name, Validity period, CA's digital signature.</li>
+                <li><strong>X.509 Standard:</strong> The most widely used certificate format (used in HTTPS/TLS).</li>
+            </ul>
+            <h3>Chain of Trust</h3>
+            <p>CAs form a hierarchy. A <strong>Root CA</strong> signs certificates for <strong>Intermediate CAs</strong>, which sign certificates for end entities. Browsers and OS pre-install Root CA certificates as "trust anchors."</p>
+            <div class="tip-box">
+                <strong>💡 Certificate Revocation:</strong> If a private key is compromised, the corresponding certificate can be revoked. This is managed via <strong>Certificate Revocation Lists (CRL)</strong> or <strong>OCSP</strong> (Online Certificate Status Protocol).
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>5. Elliptic Curve Diffie-Hellman (ECDH)</h2>
+            <p>A variant of DHKE using <strong>Elliptic Curve Cryptography (ECC)</strong>. ECC provides the same security as RSA/DHKE but with much smaller key sizes, making it ideal for mobile and constrained devices.</p>
+            <h3>Why ECC?</h3>
+            <table>
+                <tr><th>Security Level (bits)</th><th>RSA/DHKE Key Size</th><th>ECC Key Size</th></tr>
+                <tr><td>80</td><td>1024 bits</td><td>160 bits</td></tr>
+                <tr><td>112</td><td>2048 bits</td><td>224 bits</td></tr>
+                <tr><td>128</td><td>3072 bits</td><td>256 bits</td></tr>
+                <tr><td>256</td><td>15360 bits</td><td>512 bits</td></tr>
+            </table>
+            <p>The security of ECC is based on the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>, which is considered harder to solve than the standard discrete logarithm problem for the same key size.</p>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>CSE 4783 Cryptography Study Guide | Module 6: Key Establishment</p>
+    </footer>
+
+</body>
+</html>

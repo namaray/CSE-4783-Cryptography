@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5. Steganography | CSE 4783</title>
+    <meta name="description" content="Study notes on Steganography for CSE 4783 Cryptography - hiding messages in plain sight.">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root {
+            --primary: #1a1a2e;
+            --accent: #7c3aed;
+            --accent-light: #a78bfa;
+            --bg: #f5f3ff;
+            --card-bg: #ffffff;
+            --text: #1e1b4b;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --formula-bg: #ede9fe;
+            --formula-border: #7c3aed;
+            --warning-bg: #fef3c7;
+            --warning-border: #f59e0b;
+            --tip-bg: #d1fae5;
+            --tip-border: #059669;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            margin: 0; padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #2d1b69 100%);
+            color: white;
+            padding: 2.5rem 1rem;
+            text-align: center;
+            border-bottom: 4px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(ellipse at center, rgba(124,58,237,0.15) 0%, transparent 70%);
+        }
+        header h1 { margin: 0; font-size: 2.2rem; font-weight: 700; position: relative; }
+        header p { color: var(--accent-light); margin: 0.5rem 0 0; font-size: 1rem; position: relative; }
+        .nav-link {
+            display: inline-block; margin-top: 1rem;
+            color: rgba(255,255,255,0.7); text-decoration: none;
+            font-weight: 500; font-size: 0.9rem; position: relative;
+            transition: color 0.2s;
+        }
+        .nav-link:hover { color: white; }
+        .container { max-width: 920px; margin: 2.5rem auto; padding: 0 1.5rem; }
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            transition: box-shadow 0.2s;
+        }
+        .card:hover { box-shadow: 0 4px 24px rgba(124,58,237,0.1); }
+        h2 {
+            color: var(--primary); font-size: 1.4rem; font-weight: 700;
+            border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        h3 { color: var(--accent); margin-top: 1.5rem; font-size: 1.1rem; font-weight: 600; }
+        .formula-box {
+            background: var(--formula-bg);
+            border-left: 4px solid var(--formula-border);
+            padding: 1rem 1.2rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 1.05rem;
+        }
+        .tip-box {
+            background: var(--tip-bg);
+            border-left: 4px solid var(--tip-border);
+            padding: 0.8rem 1.2rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-box {
+            background: var(--warning-bg);
+            border-left: 4px solid var(--warning-border);
+            padding: 0.8rem 1.2rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; }
+        th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
+        th { background: var(--primary); color: white; font-weight: 600; }
+        tr:nth-child(even) td { background: #f8f7ff; }
+        ul, ol { padding-left: 1.5rem; }
+        li { margin-bottom: 0.4rem; }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin: 1.2rem 0;
+        }
+        .compare-card {
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1.2rem;
+        }
+        .compare-card h4 { margin: 0 0 0.8rem; color: var(--accent); font-size: 1rem; }
+        .badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 20px;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        footer { text-align: center; padding: 2rem; background: var(--primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+        @media (max-width: 600px) { .comparison-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Module 5: Steganography</h1>
+        <p>Hiding the existence of a secret message</p>
+        <a href="../index.html" class="nav-link">← Back to Home</a>
+    </header>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>1. Steganography vs. Cryptography</h2>
+            <p>While <strong>Cryptography</strong> scrambles a message so it cannot be <em>read</em>, <strong>Steganography</strong> hides the message so it cannot even be <em>detected</em>. Both are part of the broader field of information hiding.</p>
+            <div class="comparison-grid">
+                <div class="compare-card">
+                    <h4>🔐 Cryptography</h4>
+                    <ul>
+                        <li>Hides the <strong>content</strong> of a message</li>
+                        <li>The existence of communication is visible</li>
+                        <li>Adversary knows something is hidden but can't read it</li>
+                        <li>Example: Encrypted email traffic</li>
+                    </ul>
+                </div>
+                <div class="compare-card">
+                    <h4>🕵️ Steganography</h4>
+                    <ul>
+                        <li>Hides the <strong>existence</strong> of the message</li>
+                        <li>The cover medium looks completely innocent</li>
+                        <li>Adversary does not suspect any communication</li>
+                        <li>Example: Hidden text in an image file</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tip-box">
+                <strong>💡 Key Insight:</strong> Steganography and Cryptography can be combined — first encrypt the secret message, then hide the ciphertext using steganography. This provides both secrecy and concealment.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. Core Components</h2>
+            <ul>
+                <li><strong>Cover Medium (C):</strong> The innocent carrier that hides the secret. Can be an image, audio file, video, or text document.</li>
+                <li><strong>Secret Message (M):</strong> The hidden data to be concealed.</li>
+                <li><strong>Stego-Key (K):</strong> An optional key used to embed/extract the message, adding another layer of security.</li>
+                <li><strong>Stego-Object (S):</strong> The cover medium after the secret message has been embedded. It should be perceptually identical to the original cover.</li>
+            </ul>
+            <div class="formula-box">
+                Embedding: \( S = \text{Embed}(C, M, K) \) <br>
+                Extraction: \( M = \text{Extract}(S, K) \)
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>3. Image Steganography: LSB Technique</h2>
+            <p>The most common digital steganography technique. Each pixel in an image has color values (e.g., RGB). Each value is stored as an 8-bit number. The <strong>Least Significant Bit (LSB)</strong> of each byte contributes the smallest change in color — a change that is imperceptible to the human eye.</p>
+
+            <h3>How LSB Works</h3>
+            <p>By replacing the LSB of each pixel's color value with a bit of the secret message, we can hide data with minimal visual distortion.</p>
+
+            <table>
+                <tr><th>Original Pixel (R, G, B)</th><th>Binary Representation</th><th>After Embedding bit '1'</th></tr>
+                <tr><td>R = 200</td><td>1100 100<strong>0</strong></td><td>1100 100<strong>1</strong> = 201</td></tr>
+                <tr><td>G = 130</td><td>1000 001<strong>0</strong></td><td>1000 001<strong>1</strong> = 131</td></tr>
+                <tr><td>B = 75</td><td>0100 101<strong>1</strong></td><td>0100 101<strong>1</strong> = 75 (no change)</td></tr>
+            </table>
+            <p>A maximum color change of 1 out of 255 is visually undetectable.</p>
+
+            <h3>Storage Capacity</h3>
+            <div class="formula-box">
+                For a 24-bit (RGB) image of size \( W \times H \) pixels with 1 bit per channel: <br>
+                Max hidden data = \( W \times H \times 3 \) bits = \( \frac{W \times H \times 3}{8} \) bytes
+            </div>
+            <div class="warning-box">
+                <strong>⚠️ Trade-off:</strong> Using more bits per pixel (e.g., 4 LSBs) increases capacity but also increases visual distortion, making detection easier.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. Other Steganography Techniques</h2>
+
+            <h3>Text Steganography</h3>
+            <ul>
+                <li><strong>Whitespace Manipulation:</strong> Extra spaces or tabs are added at the end of lines to encode bits.</li>
+                <li><strong>Line Shifting:</strong> Text lines are shifted vertically by small amounts.</li>
+                <li><strong>Word Shifting:</strong> Words are shifted horizontally.</li>
+                <li><strong>Syntactic Methods:</strong> Using synonyms or changing punctuation to encode data.</li>
+            </ul>
+
+            <h3>Audio Steganography</h3>
+            <ul>
+                <li><strong>LSB Coding:</strong> Same concept as image LSB applied to audio sample bytes.</li>
+                <li><strong>Echo Hiding:</strong> Embeds information by adding an echo signal to the audio. The echo's delay, amplitude, and initial value represent data.</li>
+                <li><strong>Phase Coding:</strong> Alters the phase components of audio segments to encode data.</li>
+            </ul>
+
+            <h3>Network / Protocol Steganography</h3>
+            <ul>
+                <li>Hiding data in unused header fields of network packets (e.g., IP, TCP, HTTP headers).</li>
+                <li>Manipulating inter-packet timing to encode information.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>5. Steganalysis (Detection)</h2>
+            <p>Just as cryptanalysis attempts to break ciphers, <strong>Steganalysis</strong> attempts to detect or decode hidden messages. The goal is to distinguish between clean cover media and stego-objects.</p>
+            <ul>
+                <li><strong>Statistical Analysis:</strong> LSB steganography slightly alters the statistical distribution of pixel values. Tools can detect this deviation from the expected distribution of a natural image.</li>
+                <li><strong>Visual Attack:</strong> Extracting and visualizing the LSBs of an image. Hidden data appears as random noise, while natural image LSBs show structure.</li>
+                <li><strong>Chi-Square Attack:</strong> Compares the expected frequency distribution of pixel pairs in a cover image versus a stego-image.</li>
+            </ul>
+            <div class="tip-box">
+                <strong>💡 Countermeasure:</strong> Spread the hidden data randomly throughout the image (using a pseudo-random number generator seeded with a key) rather than sequentially to resist statistical attacks.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>6. Key Properties of a Good Steganographic System</h2>
+            <table>
+                <tr><th>Property</th><th>Description</th></tr>
+                <tr><td><strong>Imperceptibility</strong></td><td>The stego-object must be indistinguishable from the cover to the human senses.</td></tr>
+                <tr><td><strong>Capacity</strong></td><td>The amount of data that can be hidden without causing perceptible distortion.</td></tr>
+                <tr><td><strong>Robustness</strong></td><td>The hidden data should survive common signal processing operations (compression, cropping).</td></tr>
+                <tr><td><strong>Security</strong></td><td>A steganalyst should not be able to prove that a stego-object contains hidden data.</td></tr>
+            </table>
+            <div class="warning-box">
+                <strong>⚠️ The Steganography Triangle:</strong> Imperceptibility, Capacity, and Robustness cannot all be maximized simultaneously. Increasing one property generally degrades another.
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>CSE 4783 Cryptography Study Guide | Module 5: Steganography</p>
+    </footer>
+
+</body>
+</html>

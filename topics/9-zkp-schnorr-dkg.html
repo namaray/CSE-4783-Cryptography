@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>9. ZKP, Schnorr & DKG | CSE 4783</title>
+    <meta name="description" content="Study notes on Zero-Knowledge Proofs, Schnorr's Protocol, and Distributed Key Generation for CSE 4783.">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root {
+            --primary: #1a1a2e;
+            --accent: #7c3aed;
+            --accent2: #0ea5e9;
+            --accent3: #059669;
+            --accent-light: #c4b5fd;
+            --bg: #faf5ff;
+            --card-bg: #ffffff;
+            --text: #2e1065;
+            --border: #ede9fe;
+            --formula-bg: #ede9fe;
+            --formula-border: #7c3aed;
+            --tip-bg: #eff6ff;
+            --tip-border: #3b82f6;
+            --warning-bg: #fef3c7;
+            --warning-border: #f59e0b;
+            --success-bg: #d1fae5;
+            --success-border: #059669;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); line-height: 1.7; }
+        header {
+            background: linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #1e3a5f 100%);
+            color: white; padding: 2.5rem 1rem; text-align: center;
+            border-bottom: 4px solid var(--accent);
+        }
+        header h1 { margin: 0; font-size: 2.2rem; font-weight: 700; }
+        header p { color: var(--accent-light); margin: 0.5rem 0 0; }
+        .nav-link { display: inline-block; margin-top: 1rem; color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+        .nav-link:hover { color: white; }
+        .container { max-width: 920px; margin: 2.5rem auto; padding: 0 1.5rem; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 16px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+        .card:hover { box-shadow: 0 4px 24px rgba(124,58,237,0.12); }
+        h2 { color: var(--primary); font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-top: 0; }
+        h3 { color: var(--accent); margin-top: 1.5rem; font-weight: 600; font-size: 1.1rem; }
+        .formula-box { background: var(--formula-bg); border-left: 4px solid var(--formula-border); padding: 1rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; font-size: 1.05rem; }
+        .tip-box { background: var(--tip-bg); border-left: 4px solid var(--tip-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        .warning-box { background: var(--warning-bg); border-left: 4px solid var(--warning-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        .success-box { background: var(--success-bg); border-left: 4px solid var(--success-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; }
+        th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
+        th { background: var(--primary); color: white; font-weight: 600; }
+        tr:nth-child(even) td { background: #faf5ff; }
+        ul, ol { padding-left: 1.5rem; }
+        li { margin-bottom: 0.4rem; }
+        .zkp-props { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.2rem 0; }
+        .zkp-prop { background: #f5f3ff; border: 2px solid var(--accent); border-radius: 10px; padding: 1.2rem; text-align: center; }
+        .zkp-prop .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .zkp-prop h4 { margin: 0 0 0.5rem; color: var(--primary); }
+        .zkp-prop p { margin: 0; font-size: 0.85rem; color: #374151; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.2rem 0; }
+        .party-box { border: 2px solid var(--border); border-radius: 8px; padding: 1.2rem; }
+        .party-box.alice { border-color: var(--accent); background: #faf5ff; }
+        .party-box.bob { border-color: var(--accent2); background: #f0f9ff; }
+        .party-box h4 { margin: 0 0 0.8rem; font-size: 1rem; }
+        .party-box.alice h4 { color: var(--accent); }
+        .party-box.bob h4 { color: var(--accent2); }
+        .protocol-steps { counter-reset: step; padding-left: 0; list-style: none; }
+        .protocol-steps li { position: relative; padding: 0.6rem 0.6rem 0.6rem 3rem; margin-bottom: 0.6rem; background: #faf5ff; border-radius: 6px; border: 1px solid var(--border); }
+        .protocol-steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); background: var(--accent); color: white; width: 1.5rem; height: 1.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; }
+        footer { text-align: center; padding: 2rem; background: var(--primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+        @media (max-width: 600px) { .zkp-props, .two-col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Module 9: ZKP, Schnorr & DKG</h1>
+        <p>Zero-Knowledge Proofs · Schnorr's Identification Protocol · Distributed Key Generation</p>
+        <a href="../index.html" class="nav-link">← Back to Home</a>
+    </header>
+
+    <div class="container">
+
+        <!-- ==================== PART 1: ZKP ==================== -->
+        <div class="card">
+            <h2>Part I — Zero-Knowledge Proofs (ZKP)</h2>
+            <p>A <strong>Zero-Knowledge Proof</strong> is a cryptographic protocol where one party (the <strong>Prover P</strong>) can convince another party (the <strong>Verifier V</strong>) that they know a secret, <em>without revealing anything about the secret itself</em>.</p>
+
+            <div class="tip-box">
+                <strong>💡 The Core Idea:</strong> "I can prove to you I know the password to this locked door, without ever showing you the password or unlocking the door in front of you."
+            </div>
+
+            <h3>Ali Baba Cave Analogy</h3>
+            <p>Imagine a circular cave with a secret door inside that requires a password to open. Paths split into left and right. The Prover (P) knows the password:</p>
+            <ol>
+                <li>The Verifier waits at the cave entrance. The Prover enters and goes either left or right (Verifier doesn't see which).</li>
+                <li>The Verifier calls out a random direction — "Come out from the <strong>left</strong>!" or "Come out from the <strong>right</strong>!"</li>
+                <li>If the Prover knows the password, they can always come out from the demanded side. If they don't know the password, they can only succeed 50% of the time (by luck).</li>
+                <li>Repeating this \( n \) times, the probability of a cheating prover succeeding is \( (1/2)^n \). For \( n = 100 \) rounds, this probability is \( 2^{-100} \), effectively zero.</li>
+            </ol>
+            <div class="formula-box">
+                Probability of cheating prover succeeding \( n \) rounds: \( \left(\frac{1}{2}\right)^n \xrightarrow{n \to \infty} 0 \)
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>ZKP — Three Essential Properties</h2>
+            <div class="zkp-props">
+                <div class="zkp-prop">
+                    <div class="icon">✅</div>
+                    <h4>Completeness</h4>
+                    <p>If the statement is <strong>true</strong>, an honest verifier will always be convinced by an honest prover.</p>
+                </div>
+                <div class="zkp-prop">
+                    <div class="icon">🔒</div>
+                    <h4>Soundness</h4>
+                    <p>If the statement is <strong>false</strong>, no cheating prover can convince the honest verifier that it is true (except with negligible probability).</p>
+                </div>
+                <div class="zkp-prop">
+                    <div class="icon">🕵️</div>
+                    <h4>Zero-Knowledge</h4>
+                    <p>If the statement is true, the verifier learns <strong>nothing</strong> other than the fact that the statement is true. No information about the secret is revealed.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== PART 2: SCHNORR ==================== -->
+        <div class="card">
+            <h2>Part II — Schnorr's Identification Protocol</h2>
+            <p>Claus-Peter Schnorr's protocol is a practical, efficient <strong>interactive ZKP</strong>. It allows Alice (Prover) to prove to Bob (Verifier) that she knows a private key \( x \), without revealing \( x \). It is based on the <strong>Discrete Logarithm Problem</strong>.</p>
+
+            <h3>Setup & Keys</h3>
+            <div class="two-col">
+                <div class="party-box alice">
+                    <h4>🔵 Alice (Prover)</h4>
+                    <ul>
+                        <li>Public prime generator: \( G \)</li>
+                        <li>Private key: \( x \) (secret)</li>
+                        <li>Public key: \( P = x \cdot G \)</li>
+                    </ul>
+                </div>
+                <div class="party-box bob">
+                    <h4>🔴 Bob (Verifier)</h4>
+                    <ul>
+                        <li>Knows the prime generator \( G \)</li>
+                        <li>Knows Alice's public key \( P \)</li>
+                        <li>Does NOT know \( x \)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Protocol Steps (3-Round Interactive Proof)</h3>
+            <ol class="protocol-steps">
+                <li><strong>Alice generates</strong> a random nonce \( r \) (kept secret).</li>
+                <li><strong>Alice computes</strong> the commitment \( R = r \cdot G \) and sends \( R \) to Bob.</li>
+                <li><strong>Bob sends</strong> a random challenge \( c \) to Alice.</li>
+                <li><strong>Alice computes</strong> the response \( s = c \cdot x + r \) and sends \( (R, s) \) to Bob.</li>
+                <li><strong>Bob verifies:</strong> He checks if \( s \cdot G = c \cdot P + R \).</li>
+            </ol>
+
+            <h3>Mathematical Proof of Correctness</h3>
+            <div class="formula-box">
+                Bob checks: \( s \cdot G \stackrel{?}{=} (c \cdot x + r) \cdot G \) <br><br>
+                Expanding: \( s \cdot G = c \cdot (x \cdot G) + r \cdot G = c \cdot P + R \) ✓
+            </div>
+
+            <div style="margin: 1.2rem 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border);">
+                <img src="Schnorr's Identification Protocol.jpg" alt="Schnorr's Identification Protocol handwritten notes" style="width:100%; display:block; opacity:0.9;">
+                <p style="background:#f0f9ff; margin:0; padding:0.5rem 1rem; font-size:0.78rem; color:#6b7280;">📝 Original handwritten notes</p>
+            </div>
+            <div class="success-box">
+                <strong>✅ Why it's Zero-Knowledge:</strong> Bob learns \( R = r \cdot G \) and \( s = c \cdot x + r \). To find \( x \), Bob would need to compute \( r = s - c \cdot x \), but he doesn't know \( x \). The Discrete Log Problem prevents deriving \( r \) from \( R \). Alice's secret \( x \) is perfectly protected.
+            </div>
+            <div class="warning-box">
+                <strong>⚠️ Nonce reuse attack:</strong> If Alice reuses the same nonce \( r \) for two different challenges \( c_1 \) and \( c_2 \), Bob gets two responses: \( s_1 = c_1 x + r \) and \( s_2 = c_2 x + r \). Subtracting gives \( s_1 - s_2 = (c_1 - c_2)x \), revealing \( x = \frac{s_1 - s_2}{c_1 - c_2} \). The nonce must ALWAYS be freshly random!
+            </div>
+        </div>
+
+        <!-- ==================== PART 3: DKG ==================== -->
+        <div class="card">
+            <h2>Part III — Distributed Key Generation (DKG)</h2>
+            <p>DKG is a protocol that allows multiple parties to <strong>jointly generate a shared secret key</strong> such that no single party knows the full key. It extends <strong>Secret Sharing</strong> schemes (like Shamir's Secret Sharing) to the distributed setting.</p>
+
+            <h3>The Problem it Solves</h3>
+            <p>In traditional key generation, a single trusted party generates the key. This creates a single point of failure. DKG eliminates this by distributing the trust across multiple parties.</p>
+
+            <h3>Shamir's Secret Sharing (Foundation of DKG)</h3>
+            <p>A secret \( S \) is split into \( n \) shares such that any \( t \) shares can reconstruct \( S \), but fewer than \( t \) shares reveal nothing. This is called a \( (t, n) \)-threshold scheme.</p>
+            <ul>
+                <li>Choose a random polynomial \( f(x) \) of degree \( t-1 \) where \( f(0) = S \) (the secret).</li>
+                <li>Each party \( i \) receives share \( f(i) \).</li>
+                <li>Reconstruct using <strong>Lagrange Interpolation</strong>.</li>
+            </ul>
+
+            <h3>Lagrange Interpolation (Reconstruction)</h3>
+            <div class="formula-box">
+                \( f(0) = \sum_{i} y_i \cdot L_i(0) \) where \( L_i(0) = \prod_{j \neq i} \frac{0 - x_j}{x_i - x_j} \pmod{p} \)
+            </div>
+
+            <h3>Worked Example from Notes</h3>
+            <p>Three users contribute shares: \( A(1, 235) \), \( B(2, 230) \), \( C(3, 108) \). Modulus: 251.</p>
+            <p>The secret polynomial is \( f(x) = S + ax + bx^2 \), and \( f(0) = S \) is our goal.</p>
+
+            <p>Compute Lagrange basis polynomials at \( x = 0 \):</p>
+            <div class="formula-box">
+                \( L_1(0) = \frac{0 - x_2}{x_1 - x_2} \times \frac{0 - x_3}{x_1 - x_3} = \frac{-2}{1-2} \times \frac{-3}{1-3} = \frac{-2}{-1} \times \frac{-3}{-2} = 2 \times \frac{3}{2} = 3 \pmod{251} \)
+            </div>
+            <div class="formula-box">
+                \( L_2(0) = \frac{0 - x_1}{x_2 - x_1} \times \frac{0 - x_3}{x_2 - x_3} = \frac{0-1}{2-1} \times \frac{0-3}{2-3} = \frac{-1}{1} \times \frac{-3}{-1} = -3 \pmod{251} = 248 \)
+            </div>
+            <div class="formula-box">
+                \( L_3(0) = \frac{0-1}{3-1} \times \frac{0-2}{3-2} = \frac{-1}{2} \times \frac{-2}{1} = 1 \pmod{251} \)
+            </div>
+            <div class="formula-box">
+                \( f(0) = y_1 \cdot L_1(0) + y_2 \cdot L_2(0) + y_3 \cdot L_3(0) \) <br>
+                \( = 235 \times 3 + 230 \times (-3) + 108 \times 1 \pmod{251} \) <br>
+                \( = 705 - 690 + 108 = 123 \pmod{251} \) <br>
+                <strong>Secret \( S = f(0) = 123 \)</strong>
+            </div>
+
+            <div style="margin: 1.2rem 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border);">
+                <img src="ZKP.jpg" alt="Handwritten ZKP notes" style="width:100%; display:block; opacity:0.9;">
+                <p style="background:#f5f3ff; margin:0; padding:0.5rem 1rem; font-size:0.78rem; color:#6b7280;">📝 Original handwritten notes</p>
+            </div>
+            <div class="tip-box">
+                <strong>💡 DKG in Distributed Systems:</strong> In a full DKG protocol (e.g., Pedersen DKG), each party contributes a random polynomial. The shared secret is the sum of all parties' constant terms (secrets), but no party needs to reveal their individual secret to compute this sum.
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>CSE 4783 Cryptography Study Guide | Module 9: ZKP, Schnorr & DKG</p>
+    </footer>
+
+</body>
+</html>

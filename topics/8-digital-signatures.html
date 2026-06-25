@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8. Digital Signatures | CSE 4783</title>
+    <meta name="description" content="Study notes on Digital Signatures for CSE 4783 - RSA, DSA, ECDSA, and non-repudiation.">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root {
+            --primary: #1a1a2e;
+            --accent: #dc2626;
+            --accent-light: #fca5a5;
+            --bg: #fff5f5;
+            --card-bg: #ffffff;
+            --text: #450a0a;
+            --border: #fecaca;
+            --formula-bg: #fee2e2;
+            --formula-border: #dc2626;
+            --tip-bg: #eff6ff;
+            --tip-border: #3b82f6;
+            --warning-bg: #fef3c7;
+            --warning-border: #f59e0b;
+            --success-bg: #d1fae5;
+            --success-border: #059669;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); line-height: 1.7; }
+        header {
+            background: linear-gradient(135deg, #450a0a 0%, #991b1b 100%);
+            color: white; padding: 2.5rem 1rem; text-align: center;
+            border-bottom: 4px solid var(--accent);
+        }
+        header h1 { margin: 0; font-size: 2.2rem; font-weight: 700; }
+        header p { color: var(--accent-light); margin: 0.5rem 0 0; }
+        .nav-link { display: inline-block; margin-top: 1rem; color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+        .nav-link:hover { color: white; }
+        .container { max-width: 920px; margin: 2.5rem auto; padding: 0 1.5rem; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 16px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+        .card:hover { box-shadow: 0 4px 24px rgba(220,38,38,0.1); }
+        h2 { color: var(--primary); font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-top: 0; }
+        h3 { color: var(--accent); margin-top: 1.5rem; font-weight: 600; font-size: 1.1rem; }
+        .formula-box { background: var(--formula-bg); border-left: 4px solid var(--formula-border); padding: 1rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; font-size: 1.05rem; }
+        .tip-box { background: var(--tip-bg); border-left: 4px solid var(--tip-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        .warning-box { background: var(--warning-bg); border-left: 4px solid var(--warning-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        .success-box { background: var(--success-bg); border-left: 4px solid var(--success-border); padding: 0.8rem 1.2rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; }
+        th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
+        th { background: var(--primary); color: white; font-weight: 600; }
+        tr:nth-child(even) td { background: #fff5f5; }
+        ul, ol { padding-left: 1.5rem; }
+        li { margin-bottom: 0.4rem; }
+        .flow-diagram {
+            display: flex; align-items: center; justify-content: space-around;
+            flex-wrap: wrap; gap: 0.5rem; margin: 1.5rem 0;
+        }
+        .flow-box {
+            background: #1a1a2e; color: white; border-radius: 8px;
+            padding: 0.8rem 1.2rem; text-align: center; font-size: 0.85rem; font-weight: 600;
+            min-width: 100px;
+        }
+        .flow-arrow { font-size: 1.5rem; color: var(--accent); font-weight: bold; }
+        .protocol-steps { counter-reset: step; padding-left: 0; list-style: none; }
+        .protocol-steps li { position: relative; padding: 0.6rem 0.6rem 0.6rem 3rem; margin-bottom: 0.6rem; background: #fff5f5; border-radius: 6px; border: 1px solid var(--border); }
+        .protocol-steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); background: var(--accent); color: white; width: 1.5rem; height: 1.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; }
+        footer { text-align: center; padding: 2rem; background: var(--primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Module 8: Digital Signatures</h1>
+        <p>Providing authenticity, integrity, and non-repudiation</p>
+        <a href="../index.html" class="nav-link">← Back to Home</a>
+    </header>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>1. What is a Digital Signature?</h2>
+            <p>A <strong>digital signature</strong> is a mathematical scheme that proves the authenticity of a digital message or document. It is the digital equivalent of a handwritten signature or a wax seal.</p>
+            <h3>Three Security Services Provided</h3>
+            <ul>
+                <li><strong>Authentication:</strong> Verifies the identity of the signer — the message came from a specific private key holder.</li>
+                <li><strong>Integrity:</strong> Guarantees the message was not modified after it was signed.</li>
+                <li><strong>Non-Repudiation:</strong> The signer cannot later deny having signed the message (unlike a MAC/HMAC where both parties share the secret key).</li>
+            </ul>
+            <div class="tip-box">
+                <strong>💡 Key Difference from MACs:</strong> A digital signature uses an <em>asymmetric</em> key pair. The signer uses their <strong>private key</strong>. Anyone with the <strong>public key</strong> can verify. This is what enables non-repudiation — only you have your private key.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. The Signing & Verification Process</h2>
+            <p>Digital signatures are always applied to the <strong>hash of the message</strong>, not the message itself. This is more efficient for large documents and ensures a fixed-size input to the signature algorithm.</p>
+
+            <h3>Signing (by Alice)</h3>
+            <div class="flow-diagram">
+                <div class="flow-box">Message (M)</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Hash Function H</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Digest H(M)</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Sign with Alice's Private Key</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Signature σ</div>
+            </div>
+
+            <h3>Verification (by Bob)</h3>
+            <div class="flow-diagram">
+                <div class="flow-box">Signature σ</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Verify with Alice's Public Key</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Recovered H(M)</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Compare to H(M) computed from M</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">✅ Match = Valid</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>3. RSA Digital Signatures</h2>
+            <p>RSA can be used for signing by reversing the encryption/decryption roles. The private key is used to sign, and the public key is used to verify.</p>
+
+            <h3>Key Generation (same as RSA Encryption)</h3>
+            <ol>
+                <li>Choose two large primes \( p \) and \( q \). Compute \( n = p \times q \).</li>
+                <li>Compute \( \phi(n) = (p-1)(q-1) \).</li>
+                <li>Choose public exponent \( e \) such that \( \gcd(e, \phi(n)) = 1 \).</li>
+                <li>Compute private exponent \( d \) such that \( e \times d \equiv 1 \pmod{\phi(n)} \).</li>
+                <li>Public key: \( (n, e) \) | Private key: \( (n, d) \)</li>
+            </ol>
+
+            <div class="formula-box">
+                Signing: \( \sigma = H(M)^d \pmod{n} \) <br>
+                Verification: \( H(M)' = \sigma^e \pmod{n} \) — check if \( H(M)' = H(M) \)
+            </div>
+
+            <div class="tip-box">
+                <strong>💡 Why does this work?</strong> Because of RSA's symmetry: \( (M^d)^e = M^{de} \equiv M \pmod{n} \). The private key operation is the "inverse" of the public key operation.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. DSA — Digital Signature Algorithm</h2>
+            <p>The NIST-standardized signature algorithm (FIPS 186). Based on the <strong>Discrete Logarithm Problem</strong>. Unlike RSA, DSA can <em>only</em> be used for signing (not encryption).</p>
+
+            <h3>DSA Parameters (Public)</h3>
+            <ul>
+                <li>\( p \): A large prime (e.g., 1024-3072 bits)</li>
+                <li>\( q \): A prime factor of \( p-1 \) (e.g., 160-256 bits)</li>
+                <li>\( g \): A generator of the subgroup of order \( q \) in \( \mathbb{Z}_p^* \)</li>
+            </ul>
+            <h3>Key Generation</h3>
+            <ul>
+                <li>Private key: \( x \) — a random integer \( 1 < x < q \)</li>
+                <li>Public key: \( y = g^x \pmod{p} \)</li>
+            </ul>
+            <h3>Signing a Message M</h3>
+            <ol>
+                <li>Choose a random secret nonce \( k \) \( (0 < k < q) \).</li>
+                <li>Compute \( r = (g^k \pmod{p}) \pmod{q} \). If \( r = 0 \), choose new \( k \).</li>
+                <li>Compute \( s = k^{-1}(H(M) + xr) \pmod{q} \). If \( s = 0 \), choose new \( k \).</li>
+                <li>Signature is \( (r, s) \).</li>
+            </ol>
+            <div class="warning-box">
+                <strong>⚠️ Critical: The nonce k MUST be unique and random for every signature!</strong> Reusing k allows an attacker to trivially compute the private key x. This was the exact vulnerability exploited to break Sony PlayStation 3's security in 2010.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>5. ECDSA — Elliptic Curve DSA</h2>
+            <p>The elliptic curve variant of DSA. Provides the same security as DSA with much smaller key sizes. Widely used today (Bitcoin, TLS 1.3, SSH).</p>
+            <table>
+                <tr><th>Property</th><th>DSA</th><th>ECDSA</th></tr>
+                <tr><td>Security Basis</td><td>Discrete Logarithm</td><td>Elliptic Curve DLP</td></tr>
+                <tr><td>Key Size (112-bit security)</td><td>2048-bit</td><td>224-bit</td></tr>
+                <tr><td>Signature Size</td><td>320 bits</td><td>448 bits</td></tr>
+                <tr><td>Performance</td><td>Slower</td><td>Much Faster</td></tr>
+                <tr><td>Use Cases</td><td>Legacy systems</td><td>TLS, Bitcoin, IoT</td></tr>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>6. RSA vs DSA vs ECDSA Comparison</h2>
+            <table>
+                <tr><th>Feature</th><th>RSA</th><th>DSA</th><th>ECDSA</th></tr>
+                <tr><td><strong>Mathematical Basis</strong></td><td>Integer Factorization</td><td>Discrete Log</td><td>EC Discrete Log</td></tr>
+                <tr><td><strong>Key Usage</strong></td><td>Signing + Encryption</td><td>Signing Only</td><td>Signing Only</td></tr>
+                <tr><td><strong>Random Nonce Required?</strong></td><td>No</td><td>Yes</td><td>Yes</td></tr>
+                <tr><td><strong>Verification Speed</strong></td><td>Fast</td><td>Moderate</td><td>Moderate</td></tr>
+                <tr><td><strong>Key Size (128-bit sec)</strong></td><td>3072-bit</td><td>3072-bit</td><td>256-bit</td></tr>
+            </table>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>CSE 4783 Cryptography Study Guide | Module 8: Digital Signatures</p>
+    </footer>
+
+</body>
+</html>
