@@ -205,6 +205,14 @@
                 <li><strong>RSA:</strong> Sign = \( x^d \bmod n \). Verify = \( y^e \bmod n \). Deterministic.</li>
                 <li><strong>DSA:</strong> Based on Discrete Log. Probabilistic (uses random \( k_{E} \), signature changes every time).</li>
             </ul>
+
+            <h3>RSA Homomorphic Property (Multiplicative)</h3>
+            <p>RSA is partially homomorphic. Multiplying two ciphertexts and decrypting the result yields the product of their original plaintexts:</p>
+            <div class="formula-box c8-box">
+                Let \( c_1 = m_1^e \bmod n \) and \( c_2 = m_2^e \bmod n \).<br><br>
+                \( c_1 \times c_2 = (m_1^e \times m_2^e) \bmod n = (m_1 \times m_2)^e \bmod n \)<br><br>
+                <strong>\( \text{Decryption}(c_1 \times c_2) = (c_1 \times c_2)^d \bmod n = m_1 \times m_2 \)</strong>
+            </div>
         </div>
 
         <!-- ================= MOD 9 ================= -->
