@@ -129,6 +129,16 @@
             \( \frac{n(n-1)}{2} \) unique secret keys
         </div>
         <p>This becomes unmanageable at scale. <strong>Public-key / asymmetric cryptography</strong> solves this — anyone can encrypt to Alice using her public key, but only Alice can decrypt. The remaining challenge: <em>how do you securely distribute and authenticate public keys?</em></p>
+        
+        <h3>Key Distribution Center (KDC) vs Certificate Authority (CA)</h3>
+        <p>Two major approaches exist for managing keys in a large network:</p>
+        <table>
+            <tr><th>KDC (Symmetric Approach)</th><th>CA (Asymmetric Approach)</th></tr>
+            <tr><td>Shares a unique secret key with every user in the network.</td><td>Knows NO private keys of the users.</td></tr>
+            <tr><td>Generates temporary session keys for users to communicate.</td><td>Digitally signs users' public keys to create Certificates.</td></tr>
+            <tr><td>Must be <strong>ONLINE</strong> and actively participate in every connection setup.</td><td>Can be <strong>OFFLINE</strong>. Only needed when issuing a new certificate.</td></tr>
+            <tr><td>Single point of failure: If KDC is compromised, all past and future communications are broken.</td><td>Safer against compromise. Even if CA goes down, existing certificates remain valid.</td></tr>
+        </table>
     </div>
 
     <!-- =================== 2. DHKE BASICS =================== -->
